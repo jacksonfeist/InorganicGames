@@ -175,3 +175,29 @@ footer {
   padding: 20px;
   text-align: center;
 }
+
+.legal-content {
+  max-width: 800px;
+  margin: 3em auto;
+  padding: 0 2em;
+  text-align: left;
+}
+
+.legal-content h1 {
+  text-align: left;
+}
+
+.legal-content h2 {
+  color: rgb(247, 187, 255);
+  margin-top: 2em;
+  text-align: left;
+}
+
+.legal-content ul {
+  padding-left: 2em;
+}
+
+.legal-content li {
+  padding-top: 0.4em;
+  list-style-type: disc;
+}
