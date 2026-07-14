@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink: #08070c;
+  --color-ink-raised: #101018;
+  --color-ink-line: #22222e;
+  --color-bone: #f4f2ef;
+  --color-muted: #9a97a8;
+  --color-signal: #c4f542;
+  --color-signal-dim: #8fae30;
+
+  --font-display: 'Bebas Neue', 'Impact', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A hairline used to separate the one-scroll sections without heavy borders. */
+.rule {
+  border-top: 1px solid var(--color-ink-line);
+}

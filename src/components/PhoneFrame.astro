@@ -1,0 +1,14 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: klass = '' } = Astro.props;
+---
+
+<!-- A phone shell. Whatever goes inside must be genuinely tappable — never a video. -->
+<div
+  class={`relative aspect-[9/19] w-full overflow-hidden rounded-[2rem] border border-ink-line bg-ink-raised shadow-2xl ${klass}`}
+>
+  <slot />
+</div>

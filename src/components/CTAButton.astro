@@ -1,0 +1,32 @@
+---
+import { SITE, resolved } from '../config/site';
+
+interface Props {
+  label?: string;
+  variant?: 'primary' | 'ghost';
+  class?: string;
+}
+
+const { label = 'Book a 15-min call', variant = 'primary', class: klass = '' } = Astro.props;
+
+/**
+ * One primary CTA everywhere: book a call. B2B playable deals close on a call.
+ *
+ * There is no real scheduling link yet, so rather than shipping a button that
+ * goes nowhere (or a fake Calendly URL), we fall back to a mailto that actually
+ * works. Set SITE.bookingUrl and every CTA on the site switches over at once.
+ */
+const href = resolved(SITE.bookingUrl) ?? `mailto:${SITE.email}?subject=Playable%20ads%20—%20intro%20call`;
+const isFallback = resolved(SITE.bookingUrl) === null;
+
+const base =
+  'inline-flex items-center justify-center px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-150';
+const styles =
+  variant === 'primary'
+    ? 'bg-signal text-ink hover:bg-signal-dim'
+    : 'border border-ink-line text-bone hover:border-signal hover:text-signal';
+---
+
+<a href={href} class={`${base} ${styles} ${klass}`} data-cta-fallback={isFallback ? '' : null}>
+  {label}
+</a>

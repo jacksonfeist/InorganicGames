@@ -1,0 +1,60 @@
+---
+import Section from './Section.astro';
+
+/**
+ * §6 — prove production depth in one sentence.
+ *
+ * The failure mode: "MRAID compliant. We support all networks." Everyone says
+ * that and it proves nothing. Naming the actual quirks is what proves we've
+ * shipped. Specificity IS the credibility — do not smooth this copy out into
+ * adjectives. See docs/playables.md §Network compliance.
+ */
+const networks = [
+  'AppLovin',
+  'ironSource / Unity LevelPlay',
+  'Mintegral',
+  'Meta',
+  'Google',
+  'Liftoff / Vungle',
+  'Moloco',
+  'TikTok',
+];
+---
+
+<Section class="bg-ink-raised" eyebrow="The plumbing" title="We know where each network bites.">
+  <div class="grid gap-12 lg:grid-cols-2 lg:gap-20">
+    <div>
+      <ul class="flex flex-wrap gap-2">
+        {
+          networks.map((network) => (
+            <li class="border border-ink-line px-3 py-1.5 font-mono text-xs text-muted">{network}</li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-8 text-sm leading-relaxed text-muted">
+        Base64 inlining adds <span class="text-bone">~33%</span>, so a 3MB asset set lands at ~4MB
+        against a 5MB cap. We budget for that at the start, not at packaging time.
+      </p>
+    </div>
+
+    <div class="space-y-6">
+      <p class="font-display text-2xl leading-snug tracking-wide text-bone md:text-3xl">
+        ironSource wants <span class="text-signal">autoplay on load</span>. Unity wants you to
+        <span class="text-signal"> wait for viewability</span> — opposite behaviors one build can't
+        satisfy. Mintegral needs <code class="font-mono text-signal">mtg.openurl()</code>, not
+        <code class="font-mono text-muted">mraid.open()</code>, or the conversion doesn't attribute.
+      </p>
+      <p class="text-sm text-muted">We handle the differences. That's the job.</p>
+
+      <div class="rule pt-6">
+        <p class="text-sm leading-relaxed text-muted">
+          <span class="font-semibold text-bone">And no fake gameplay.</span> Apple, Google, Meta and
+          TikTok have all tightened enforcement on ads showing gameplay the app doesn't contain. We
+          build from your real game. That's an ethical stance, a compliance safeguard, and the reason
+          a real game studio is the right vendor for this.
+        </p>
+      </div>
+    </div>
+  </div>
+</Section>

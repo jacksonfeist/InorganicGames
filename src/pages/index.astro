@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import PlayableGallery from '../components/PlayableGallery.astro';
+import ProofBar from '../components/ProofBar.astro';
+import Alternatives from '../components/Alternatives.astro';
+import HowItWorks from '../components/HowItWorks.astro';
+import PlumbingStrip from '../components/PlumbingStrip.astro';
+import CaseStudyTeaser from '../components/CaseStudyTeaser.astro';
+import StudioStrip from '../components/StudioStrip.astro';
+import FinalCTA from '../components/FinalCTA.astro';
+
+/**
+ * The nine sections of docs/homepage.md, in scroll order. Order is load-bearing:
+ * pain → proof → legitimacy. Don't move the studio strip up — nobody buying
+ * playables cares who we are until we've named their problem.
+ */
+---
+
+<Base
+  title="Inorganic Games — playable ads engineered to convert"
+  description="A real game studio that builds playable ads engineered to convert. Real gameplay, every network, fast iteration."
+>
+  <Hero />
+  <!-- 2 — the centerpiece. Currently empty: Phase 0 spec builds don't exist yet. -->
+  <PlayableGallery />
+  <ProofBar />
+  <Alternatives />
+  <HowItWorks />
+  <PlumbingStrip />
+  <!-- 7 — renders nothing until there's a real client result. Gated, not faked. -->
+  <CaseStudyTeaser />
+  <StudioStrip />
+  <FinalCTA />
+</Base>

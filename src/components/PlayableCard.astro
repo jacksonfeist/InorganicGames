@@ -1,0 +1,117 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import PhoneFrame from './PhoneFrame.astro';
+
+interface Props {
+  entry: CollectionEntry<'playables'>;
+}
+
+const { entry } = Astro.props;
+const { targetGame, genre, mechanic, buildSizeKB, networksValidated, isSpec, embedReady, poster } =
+  entry.data;
+
+/**
+ * The label is the honesty mechanism, so it is derived from `isSpec` and never
+ * hand-written per card.
+ *
+ *   spec build → "Concept build for X". Not a campaign. No results attached.
+ *   shipped    → an actual title we published.
+ *
+ * See docs/playables.md §Honesty guardrails.
+ */
+const label = isSpec ? `Concept build for ${targetGame}` : `Shipped title`;
+const embedSrc = `/playables/${entry.id}/index.html`;
+---
+
+<article class="group" data-genre={genre}>
+  <PhoneFrame>
+    {
+      embedReady ? (
+        <div class="relative h-full w-full" data-playable>
+          {/*
+            Click-to-play: the iframe src is held in data-src and only assigned on
+            click. Booting six playables at once on page load would make a page
+            about ad performance slow, which is an argument against us.
+          */}
+          <iframe
+            data-src={embedSrc}
+            title={`Playable — ${targetGame}`}
+            class="absolute inset-0 h-full w-full border-0 opacity-0 transition-opacity duration-300"
+            loading="lazy"
+            scrolling="no"
+          />
+          <button
+            type="button"
+            data-play
+            class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-cover bg-center transition-colors hover:bg-ink/70"
+            style={poster ? `background-image:linear-gradient(rgba(8,7,12,.55),rgba(8,7,12,.55)),url(${poster})` : undefined}
+          >
+            <span class="flex h-14 w-14 items-center justify-center rounded-full bg-signal text-ink">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="ml-1 h-6 w-6">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+            <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-bone">Tap to play</span>
+          </button>
+        </div>
+      ) : (
+        /* No build in public/playables/<id>/ yet. An honest empty frame beats a
+           dead iframe, and beats a video pretending to be a playable. */
+        <div class="flex h-full w-full flex-col items-center justify-center gap-3 border-2 border-dashed border-ink-line p-6 text-center">
+          <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+            Build not embedded yet
+          </span>
+          <span class="text-xs leading-relaxed text-ink-line">
+            Drop it in public/playables/{entry.id}/
+          </span>
+        </div>
+      )
+    }
+  </PhoneFrame>
+
+  <div class="mt-5">
+    <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">{label}</p>
+    <h3 class="mt-2 font-display text-2xl tracking-wide text-bone">{targetGame}</h3>
+    <p class="mt-2 text-sm leading-relaxed text-muted">{mechanic}</p>
+
+    <dl class="mt-4 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[11px] text-ink-line">
+      <div class="flex gap-1.5">
+        <dt class="sr-only">Genre</dt>
+        <dd class="text-muted">{genre}</dd>
+      </div>
+      {
+        buildSizeKB && (
+          <div class="flex gap-1.5">
+            <dt class="sr-only">Build size</dt>
+            <dd class="text-muted">{(buildSizeKB / 1000).toFixed(1)}MB</dd>
+          </div>
+        )
+      }
+      {
+        networksValidated.length > 0 && (
+          <div class="flex gap-1.5">
+            <dt class="sr-only">Networks validated</dt>
+            <dd class="text-muted">{networksValidated.join(' · ')}</dd>
+          </div>
+        )
+      }
+    </dl>
+  </div>
+</article>
+
+<script>
+  // Boot a playable only when the buyer actually asks for it.
+  document.querySelectorAll<HTMLElement>('[data-playable]').forEach((wrap) => {
+    const button = wrap.querySelector<HTMLButtonElement>('[data-play]');
+    const frame = wrap.querySelector<HTMLIFrameElement>('iframe');
+    if (!button || !frame) return;
+
+    button.addEventListener('click', () => {
+      const src = frame.dataset.src;
+      if (!src) return;
+      frame.src = src;
+      frame.classList.replace('opacity-0', 'opacity-100');
+      button.remove();
+    });
+  });
+</script>

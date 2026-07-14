@@ -1,0 +1,92 @@
+---
+import Section from './Section.astro';
+import { SHIPPED_TITLES, resolved } from '../config/site';
+
+/**
+ * §8 — "we're a real studio, not a freelancer with a template."
+ *
+ * The TikTok Minis lead. Not for chronology or sentiment — because a TikTok Mini
+ * Game is HTML5, instant-load, in-feed and size-constrained, which is not an
+ * analogy for playable-ad work, it IS playable-ad work. See docs/proof-assets.md.
+ *
+ * SHIPPED_TITLES is already filtered by feature flag, so MAN_HUNT (App Store
+ * listing 404s) cannot reach this template. Do not iterate any other list here.
+ *
+ * Ruff Rescue never shipped and is not a title. It is not in the data at all.
+ */
+const leads = SHIPPED_TITLES.filter((t) => t.lead);
+const rest = SHIPPED_TITLES.filter((t) => !t.lead);
+---
+
+<Section
+  id="studio"
+  eyebrow="The studio"
+  title="We ship instant-play games inside a social feed."
+  lede="That's the same engineering problem as a playable ad — boot in a browser, in seconds, under a hard weight budget, with no install step. We've already solved it twice."
+>
+  <div class="grid gap-px bg-ink-line sm:grid-cols-2">
+    {
+      leads.map((title) => {
+        const href = resolved(title.url);
+        return (
+          <div class="bg-ink-raised p-8">
+            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">
+              {title.platform}
+            </p>
+            <h3 class="mt-3 font-display text-3xl tracking-wide text-bone">{title.name}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-muted">{title.pitch}</p>
+            {href ? (
+              <a
+                href={href}
+                class="mt-5 inline-block text-sm text-signal underline-offset-4 hover:underline"
+                target="_blank"
+                rel="noopener"
+              >
+                Play it →
+              </a>
+            ) : (
+              /* No canonical URL yet. docs/proof-assets.md: "No copy claiming them
+                 can ship without a working link." So the card renders, but it does
+                 not pretend to link anywhere. `npm run check:todos` lists these. */
+              <p class="mt-5 border border-dashed border-ink-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-ink-line inline-block">
+                Link — empty slot
+              </p>
+            )}
+          </div>
+        );
+      })
+    }
+  </div>
+
+  <div class="mt-12">
+    <p class="max-w-2xl text-sm leading-relaxed text-muted">
+      And we make commercial games — which is where the craft behind a playable's hook and tutorial
+      loop actually comes from.
+    </p>
+
+    <div class="mt-6 flex flex-wrap gap-x-10 gap-y-4">
+      {
+        rest.map((title) => {
+          const href = resolved(title.url);
+          return (
+            <div class="flex items-baseline gap-3">
+              {href ? (
+                <a
+                  href={href}
+                  class="font-display text-2xl tracking-wide text-bone hover:text-signal"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {title.name}
+                </a>
+              ) : (
+                <span class="font-display text-2xl tracking-wide text-bone">{title.name}</span>
+              )}
+              <span class="font-mono text-xs text-muted">{title.platform}</span>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</Section>

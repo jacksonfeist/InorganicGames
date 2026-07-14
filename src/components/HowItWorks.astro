@@ -1,0 +1,75 @@
+---
+import Section from './Section.astro';
+import { SITE, resolved } from '../config/site';
+
+/**
+ * §5 — make the process feel real and low-risk.
+ *
+ * docs/homepage.md: "State a turnaround number we can actually hit." We don't
+ * have one yet, so the slot renders as a visible gap rather than a number we
+ * might miss. Turnaround reliability is #4 on the buyer's screening list and
+ * flakiness is their live fear — missing a stated number is worse than not
+ * stating one. Set SITE.turnaround to fill it.
+ *
+ * Market context, for when you pick one: studio norm is 2–4 weeks per creative;
+ * the fast end of the market is ~1–2 weeks.
+ */
+const turnaround = resolved(SITE.turnaround);
+
+const steps = [
+  {
+    n: '01',
+    title: 'Brief',
+    body: 'You send the game, the geo, and what you’re running now. Fifteen minutes on a call.',
+  },
+  {
+    n: '02',
+    title: 'Concept & build',
+    body: 'We design the hook and the tutorial loop, then build it from your real game — not a re-skin of a template, and not gameplay your app doesn’t contain.',
+  },
+  {
+    n: '03',
+    title: 'Multi-network QA',
+    body: 'Packaged and validated per network. ironSource and Unity want opposite behaviors; one build can’t satisfy both, so we ship the right one to each.',
+  },
+  {
+    n: '04',
+    title: 'Iterate variants',
+    body: 'Creative dies in under a week. Variants off a proven build ship fast — which is why this works as a recurring cadence rather than a one-off.',
+  },
+];
+---
+
+<Section
+  id="how-it-works"
+  eyebrow="How it works"
+  title="Brief on Monday. Built, packaged, QA'd, shipped."
+>
+  <div class="grid gap-px bg-ink-line md:grid-cols-2 lg:grid-cols-4">
+    {
+      steps.map((step) => (
+        <div class="bg-ink p-8">
+          <p class="font-mono text-xs text-signal">{step.n}</p>
+          <h3 class="mt-4 font-display text-2xl tracking-wide text-bone">{step.title}</h3>
+          <p class="mt-3 text-sm leading-relaxed text-muted">{step.body}</p>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
+    {
+      turnaround ? (
+        <p class="text-sm text-muted">
+          Typical turnaround: <span class="font-semibold text-bone">{turnaround}</span> from brief to
+          packaged build.
+        </p>
+      ) : (
+        /* Visible gap. A turnaround we miss costs more than one we never stated. */
+        <p class="border border-dashed border-ink-line px-4 py-2 font-mono text-xs uppercase tracking-widest text-ink-line">
+          Turnaround commitment — empty slot
+        </p>
+      )
+    }
+  </div>
+</Section>

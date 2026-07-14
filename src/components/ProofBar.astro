@@ -1,0 +1,86 @@
+---
+import Section from './Section.astro';
+import { SHIPPED_TITLE_COUNT } from '../config/site';
+
+/**
+ * §3 Proof bar. Legitimate numbers, honestly framed.
+ *
+ * WE HAVE NO CLIENT PERFORMANCE DATA. Not one IPM, not one CPI. So this bar
+ * carries only things that are verifiably true about us, plus one industry
+ * figure that is explicitly attributed and explicitly NOT ours.
+ *
+ * The failure mode this section exists to avoid: dressing an industry stat up as
+ * our own performance. That is why the Liftoff figure below is visually separated,
+ * carries its source inline, and is labelled as an industry figure.
+ *
+ * Replace this with real client numbers the moment we have one. See
+ * docs/homepage.md §3 and the approved-claims table in docs/positioning.md.
+ */
+const facts = [
+  {
+    figure: String(SHIPPED_TITLE_COUNT),
+    label: 'shipped titles',
+    detail: 'Across Steam, itch.io and TikTok',
+  },
+  {
+    figure: '2',
+    label: 'HTML5 games live in-feed',
+    detail: 'Instant-load, size-capped, inside a social platform',
+  },
+  {
+    figure: '8',
+    label: 'ad networks we package for',
+    detail: 'Each with its own quirks — we handle the differences',
+  },
+];
+---
+
+<Section class="bg-ink-raised">
+  <div class="grid gap-12 lg:grid-cols-[1fr_auto_1fr] lg:gap-16">
+    <div class="grid gap-10 sm:grid-cols-3 lg:col-span-1 lg:grid-cols-1 lg:gap-8">
+      {
+        facts.map((fact) => (
+          <div>
+            <p class="font-display text-5xl tracking-wide text-signal">{fact.figure}</p>
+            <p class="mt-1 text-sm font-semibold text-bone">{fact.label}</p>
+            <p class="mt-1 text-sm leading-relaxed text-muted">{fact.detail}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="hidden w-px bg-ink-line lg:block"></div>
+
+    <!--
+      Attributed industry context. Rendered deliberately differently from our own
+      facts above so it cannot be misread as our result. Do not restyle these to
+      match. Do not drop the attribution line.
+    -->
+    <figure class="lg:col-span-1">
+      <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+        Industry figure — not our result
+      </p>
+      <blockquote class="mt-4">
+        <p class="font-display text-3xl leading-tight tracking-wide text-bone md:text-4xl">
+          Playables convert at <span class="text-signal">8×</span> the impression-to-install rate of
+          non-playable formats for top-spending game advertisers — and
+          <span class="text-signal">16×</span> for everyone else.
+        </p>
+      </blockquote>
+      <figcaption class="mt-4 font-mono text-xs text-muted">
+        Liftoff, 2025 Mobile Ad Creative Index
+      </figcaption>
+
+      <p class="mt-8 text-sm leading-relaxed text-muted">
+        Playables are now ~13.3% of impressions and ~56% of top-performing creatives
+        <span class="text-ink-line">(Sett.ai, Q4 2025)</span>. It's where the budget is going.
+      </p>
+    </figure>
+  </div>
+
+  {/*
+    EMPTY SLOT — our own performance numbers. Nothing goes here until a real client
+    test produces them: CPI + IPM + retention together, with a disclosed sample size.
+    Never CTR alone. See docs/case-study-template.md.
+  */}
+</Section>

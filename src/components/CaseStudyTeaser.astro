@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import Section from './Section.astro';
+import { FEATURES } from '../config/site';
+
+/**
+ * §7 — the slot is built; it stays closed until there is a real client result.
+ *
+ * Renders NOTHING while FEATURES.CASE_STUDIES is false or the collection is empty.
+ * That is the honest state: we are pre-revenue on this service and have never run
+ * a client playable. A methodology-flavored placeholder here would be a case study
+ * dressed up as one, which is exactly the thing docs/case-study-template.md warns
+ * against — "a concept build dressed up as a campaign is a lie a buyer will catch
+ * on the first follow-up question."
+ *
+ * The day a real result exists: flip FEATURES.CASE_STUDIES and add the entry. The
+ * schema enforces a baseline and a disclosed sample size.
+ */
+const caseStudies = FEATURES.CASE_STUDIES
+  ? (await getCollection('caseStudies')).sort((a, b) => a.data.order - b.data.order)
+  : [];
+
+const featured = caseStudies[0];
+---
+
+{
+  featured && (
+    <Section eyebrow="Case study" title={featured.data.game}>
+      <div class="grid gap-12 lg:grid-cols-[2fr_3fr]">
+        <div>
+          <p class="text-sm leading-relaxed text-muted">
+            {featured.data.genre} · {featured.data.platforms.join(' + ')} · {featured.data.market} ·{' '}
+            {featured.data.timeframe}
+          </p>
+          <p class="mt-6 font-display text-2xl leading-snug tracking-wide text-bone">
+            {featured.data.mechanic}
+          </p>
+          <p class="mt-6 font-mono text-xs leading-relaxed text-muted">
+            Test method: {featured.data.method.description} — {featured.data.method.sampleSize}
+          </p>
+        </div>
+
+        <table class="w-full text-left text-sm">
+          <thead class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+            <tr class="rule">
+              <th class="py-3 font-normal">Metric</th>
+              <th class="py-3 font-normal">Before</th>
+              <th class="py-3 font-normal">After</th>
+              <th class="py-3 font-normal">Δ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {featured.data.results.map((row) => (
+              <tr class="rule">
+                <td class="py-3 text-muted">{row.metric}</td>
+                <td class="py-3 text-muted">{row.before}</td>
+                <td class="py-3 text-bone">{row.after}</td>
+                <td class="py-3 text-signal">{row.delta}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Section>
+  )
+}

@@ -1,0 +1,203 @@
+body {
+  background-color: #0f0f0f;
+  color: #f0f0f0;
+  text-align: center;
+}
+
+p {
+  font-family: "Lato", sans-serif;
+  font-size: 1.2em;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20%;
+  padding: 10px;
+}
+
+.slides {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 60%;
+  padding: 10px;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  font-family: "Times New Roman", Times, serif;
+}
+
+footer {
+  display: block;
+  text-align: center;
+  margin-top: 300px;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  padding-top: 2em;
+  list-style-type: none;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 20vw; /* Use vw (viewport width) units for horizontal padding */
+}
+
+.nav-container a {
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 1.1em;
+  padding: .8em; /* Use em units for padding */
+}
+
+.nav-link {
+  background-color: #242424; /* Change to your desired color */
+  color: #ffffff; /* Change text color as needed */
+  padding: 1px 1px; /* Add some padding */
+  text-decoration: none; /* Remove underline */
+  border-radius: 10px; /* Optional: Add rounded corners */
+}
+
+.center {
+  width: auto;
+  height: 10vh; /* Use vh (viewport height) units for height */
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .nav-container {
+    flex-direction: column;
+    padding: 2vh 5vw; /* Use vh and vw units for padding */
+  }
+
+  .nav-container a {
+    font-size: 0.75em;
+    padding: 0.5em; /* Use em units for padding */
+  }
+}
+
+.job-listing {
+  background-color: #292929;
+  margin: 2em auto; /* Vertical margin is 1em, horizontal margin is automatic */
+  padding: 3em;
+  border-radius: 10px;
+  width: 70%; /* Adjust as needed */
+  max-width: 1200px; /* Prevent the div from becoming too wide on large screens */
+}
+
+.job-listing h2 {
+  text-align: left;
+  color: rgb(247, 187, 255);
+}
+
+.job-listing h3 {
+  text-align: left;
+  color: rgb(184, 191, 255);
+}
+
+.job-listing h4 {
+  text-align: left;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+/* Style the horizontal menu */
+.menu {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 5px;
+  background-color: #242424;
+}
+
+.menu-item {
+  padding: 5px;
+  cursor: pointer;
+  text-align: center;
+  margin: 0 10px;
+  border-bottom: 2px solid transparent;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.menu-logo {
+  max-height: 5.5em; /* Adjust height as needed to fit the text size */
+  width: auto; /* Maintain aspect ratio */
+}
+
+.menu-item:hover {
+  border-bottom: 2px solid #333;
+}
+
+/* Style for the project content sections */
+.project {
+  display: none; /* Hide all projects by default */
+  flex-direction: row; /* Ensure the content is displayed horizontally */
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 20px auto;
+  width: 80%;
+  max-width: 1200px;
+}
+
+.project video {
+  flex: 1;
+  max-height: 25rem; /* Adjust video width */
+  margin-right: 20px;
+}
+
+.project div {
+  flex: 1;
+  max-width: 45%; /* Adjust description width */
+}
+
+/* Ensure footer stays at the bottom */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+
+footer {
+  margin-top: 10em;
+  padding: 20px;
+  text-align: center;
+}
+
+.legal-content {
+  max-width: 800px;
+  margin: 3em auto;
+  padding: 0 2em;
+  text-align: left;
+}
+
+.legal-content h1 {
+  text-align: left;
+}
+
+.legal-content h2 {
+  color: rgb(247, 187, 255);
+  margin-top: 2em;
+  text-align: left;
+}
+
+.legal-content ul {
+  padding-left: 2em;
+}
+
+.legal-content li {
+  padding-top: 0.4em;
+  list-style-type: disc;
+}

@@ -1,0 +1,26 @@
+---
+import { SITE } from '../config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="rule px-6 py-12">
+  <div class="mx-auto flex max-w-6xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+    <p class="font-mono text-xs text-muted">
+      © {year} Inorganic Games LLC
+    </p>
+
+    <nav class="flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs">
+      <a href={`mailto:${SITE.email}`} class="text-muted transition-colors hover:text-signal">
+        {SITE.email}
+      </a>
+      <!-- Live legal pages for the shipped TikTok Minis. Served verbatim from public/. -->
+      <a href="/privacy-policy.html" class="text-muted transition-colors hover:text-signal">
+        Privacy
+      </a>
+      <a href="/terms-of-service.html" class="text-muted transition-colors hover:text-signal">
+        Terms
+      </a>
+    </nav>
+  </div>
+</footer>

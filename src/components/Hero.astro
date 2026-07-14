@@ -1,0 +1,70 @@
+---
+import CTAButton from './CTAButton.astro';
+
+/**
+ * §1 Hero. Pain first, then what we do, then one action.
+ *
+ * The failure mode this section exists to avoid: opening with "We're Inorganic
+ * Games, an indie game studio…". Nobody buying playables cares who we are until
+ * we've named their problem. See docs/homepage.md §1.
+ *
+ * HEADLINE is the working example from docs/homepage.md. Alternatives drafted
+ * against docs/positioning.md, swap in one line:
+ *   B. "Five days. That's how long your top creative has left."
+ *   C. "You're not out of budget. You're out of creative."
+ *   D. "Your creative dies in under a week. Then you feed the machine again."
+ *
+ * The "under a week" claim is sourced — effective creative lifespan in mature
+ * markets is under ~5 days (Game Growth Advisor, May 2026). Don't swap in a
+ * headline that asserts a number we can't source.
+ */
+const HEADLINE = 'Your best creative is already dead.';
+const HEADLINE_SUB = 'Ad fatigue kills it in under a week.';
+---
+
+<section class="px-6 pt-20 pb-20 md:pt-28 md:pb-28">
+  <div class="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[1.15fr_1fr]">
+    <div>
+      <h1 class="font-display text-5xl leading-[0.95] tracking-wide text-bone md:text-7xl">
+        {HEADLINE}
+        <span class="block text-muted">{HEADLINE_SUB}</span>
+      </h1>
+
+      <p class="mt-8 max-w-xl text-lg leading-relaxed text-muted">
+        Inorganic builds playable ads engineered to convert — <span class="text-bone"
+          >real gameplay, every network, fast iteration</span
+        >. Play our work below.
+      </p>
+
+      <div class="mt-10 flex flex-wrap items-center gap-6">
+        <CTAButton />
+        <a href="#work" class="text-sm text-muted underline-offset-4 transition-colors hover:text-signal hover:underline">
+          or see live demos ↓
+        </a>
+      </div>
+
+      <p class="mt-10 max-w-xl border-l-2 border-ink-line pl-4 text-sm leading-relaxed text-muted">
+        Effective creative lifespan in mature markets has fallen to under five days, and 84,000+
+        mobile advertisers are competing for the same auction every month.
+      </p>
+    </div>
+
+    <!--
+      docs/homepage.md §1 asks for one auto-looping, muted playable capture with a
+      poster frame. We have no playable to capture yet (Phase 0), so this slot is
+      an explicit placeholder rather than a stock loop or a capture of someone
+      else's ad. Drop the real loop in here once a spec build exists.
+    -->
+    <div class="flex justify-center lg:justify-end">
+      <div
+        class="flex aspect-[9/19] w-full max-w-[280px] items-center justify-center rounded-[2.5rem] border-2 border-dashed border-ink-line bg-ink-raised p-8"
+      >
+        <p class="text-center font-mono text-xs uppercase leading-relaxed tracking-widest text-muted">
+          Hero loop<br />
+          <span class="text-ink-line">—</span><br />
+          empty slot
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

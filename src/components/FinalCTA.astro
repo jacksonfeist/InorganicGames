@@ -1,0 +1,123 @@
+---
+import CTAButton from './CTAButton.astro';
+import { SITE, resolved } from '../config/site';
+
+/**
+ * §9 — repeat the primary CTA, and add the offer that is the whole sales motion
+ * productized into a button: "show us your game, we'll build one playable free."
+ *
+ * The form is deliberately four fields. Every extra field costs conversions.
+ *
+ * No form endpoint is configured yet, so the form posts nowhere — it degrades to
+ * a mailto that genuinely works rather than a form that silently eats a lead.
+ * Set FORM_ENDPOINT to switch it over.
+ */
+const FORM_ENDPOINT = 'TODO:form-endpoint — Formspree/Basin/etc, or wire to your CRM' as string;
+const endpoint = resolved(FORM_ENDPOINT);
+const responseTime = resolved(SITE.responseTime);
+---
+
+<section id="contact" class="rule bg-ink-raised px-6 py-20 md:py-28">
+  <div class="mx-auto grid max-w-6xl gap-16 lg:grid-cols-2">
+    <div>
+      <h2 class="font-display text-4xl leading-tight tracking-wide text-bone md:text-5xl">
+        Want to see what we'd build for <span class="text-signal">your</span> game?
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed text-muted">
+        We'll build one playable, free. You send the game, we send back something you can tap. No
+        deck, no retainer, no call required to find out if we're any good.
+      </p>
+
+      <div class="mt-10">
+        <CTAButton label="Book a 15-min call" />
+      </div>
+
+      {
+        responseTime ? (
+          <p class="mt-6 text-sm text-muted">
+            We reply <span class="text-bone">{responseTime}</span>.
+          </p>
+        ) : (
+          /* Answers the freelancer-flakiness objection, which is the buyer's live
+             fear. Only worth stating if we'll actually hold to it. */
+          <p class="mt-6 inline-block border border-dashed border-ink-line px-4 py-2 font-mono text-xs uppercase tracking-widest text-ink-line">
+            Response-time promise — empty slot
+          </p>
+        )
+      }
+    </div>
+
+    <form
+      action={endpoint ?? `mailto:${SITE.email}`}
+      method={endpoint ? 'POST' : 'GET'}
+      enctype={endpoint ? undefined : 'text/plain'}
+      class="space-y-5"
+    >
+      <div>
+        <label for="name" class="block font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          Name
+        </label>
+        <input
+          id="name"
+          name="name"
+          type="text"
+          required
+          class="mt-2 w-full border border-ink-line bg-ink px-4 py-3 text-sm text-bone outline-none focus:border-signal"
+        />
+      </div>
+
+      <div>
+        <label for="email" class="block font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          Email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          class="mt-2 w-full border border-ink-line bg-ink px-4 py-3 text-sm text-bone outline-none focus:border-signal"
+        />
+      </div>
+
+      <div>
+        <label for="game" class="block font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          Game / company
+        </label>
+        <input
+          id="game"
+          name="game"
+          type="text"
+          required
+          class="mt-2 w-full border border-ink-line bg-ink px-4 py-3 text-sm text-bone outline-none focus:border-signal"
+        />
+      </div>
+
+      <div>
+        <label for="running" class="block font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+          What are you running now?
+        </label>
+        <textarea
+          id="running"
+          name="running"
+          rows="3"
+          class="mt-2 w-full resize-none border border-ink-line bg-ink px-4 py-3 text-sm text-bone outline-none focus:border-signal"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-signal px-6 py-3 text-sm font-semibold tracking-wide text-ink transition-colors hover:bg-signal-dim"
+      >
+        Send my game — build me one free
+      </button>
+
+      {
+        !endpoint && (
+          <p class="font-mono text-[10px] uppercase tracking-widest text-ink-line">
+            Form endpoint — empty slot. Falls back to email.
+          </p>
+        )
+      }
+    </form>
+  </div>
+</section>

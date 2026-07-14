@@ -1,5 +1,22 @@
 {
+  "name": "inorganicgames-site",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "//build:clean": "Astro's content layer caches to node_modules/.astro/data-store.json and does NOT drop entries you delete. If a removed playable still renders, build with this.",
+    "build:clean": "astro build --force",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check:todos": "node scripts/check-todos.mjs"
+  },
   "dependencies": {
-    "http": "^0.0.1-security"
+    "astro": "^5.16.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.16",
+    "tailwindcss": "^4.1.16"
   }
 }

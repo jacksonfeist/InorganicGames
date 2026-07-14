@@ -1,0 +1,73 @@
+---
+import Section from './Section.astro';
+
+/**
+ * §4 — attack the buyer's actual alternatives. They are not choosing between us
+ * and nothing; they are choosing between us, a freelancer, a template tool, and
+ * a hire. Name all three and the problem with each.
+ *
+ * The $75–130k in-house figure is a market range for a fully loaded creative
+ * hire, not a claim about us — it's attributed as such below.
+ */
+const alternatives = [
+  {
+    name: 'A freelancer',
+    problems: ['Quality varies build to build', 'One to three networks, if that', 'No support after delivery'],
+  },
+  {
+    name: 'A template tool',
+    problems: [
+      'Templates, not craft',
+      'Nothing engineered into the 3-second hook',
+      'The hook is the part that decides whether it converts',
+    ],
+  },
+  {
+    name: 'An in-house hire',
+    problems: ['$75–130k/yr fully loaded (market range)', 'Months to hire', 'One person, one throughput'],
+  },
+];
+---
+
+<Section
+  eyebrow="Why a studio"
+  title="The hook is craft. Templates don't have one."
+  lede="Playables live or die on the first three seconds. That's a game design problem, and it's the one thing your alternatives can't do."
+>
+  <div class="grid gap-px bg-ink-line lg:grid-cols-4">
+    {
+      alternatives.map((alt) => (
+        <div class="bg-ink p-8">
+          <h3 class="font-display text-2xl tracking-wide text-muted">{alt.name}</h3>
+          <ul class="mt-6 space-y-3">
+            {alt.problems.map((problem) => (
+              <li class="flex gap-3 text-sm leading-relaxed text-muted">
+                <span class="mt-px text-ink-line">✕</span>
+                <span>{problem}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+
+    <div class="bg-ink-raised p-8 ring-1 ring-signal/40">
+      <h3 class="font-display text-2xl tracking-wide text-signal">Us</h3>
+      <ul class="mt-6 space-y-3">
+        {
+          [
+            'A shipping game studio — we build fun for a living',
+            'Every major network, packaged to each one’s spec',
+            'Real gameplay from your real game. No bait-and-switch',
+            'One accountable partner, on a recurring cadence',
+          ].map((point) => (
+            <li class="flex gap-3 text-sm leading-relaxed text-bone">
+              <span class="mt-px text-signal">→</span>
+              <span>{point}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</Section>

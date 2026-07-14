@@ -1,0 +1,38 @@
+---
+import CTAButton from './CTAButton.astro';
+
+/**
+ * Global nav per docs/homepage.md: Work · How it works · Studio · [Book a call].
+ *
+ * v1 is one scroll — the doc suggests merging Work into Home — so these are
+ * anchors, not routes. Dead nav links to stub pages are worse than no pages.
+ */
+const links = [
+  { label: 'Work', href: '#work' },
+  { label: 'How it works', href: '#how-it-works' },
+  { label: 'Studio', href: '#studio' },
+];
+---
+
+<header class="sticky top-0 z-50 border-b border-ink-line bg-ink/85 backdrop-blur-sm">
+  <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <a href="/" class="font-display text-2xl tracking-wider text-bone">
+      INORGANIC<span class="text-signal">.</span>
+    </a>
+
+    <div class="flex items-center gap-8">
+      <ul class="hidden items-center gap-8 md:flex">
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} class="text-sm text-muted transition-colors hover:text-bone">
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <CTAButton label="Book a call" class="px-4 py-2 text-xs" />
+    </div>
+  </nav>
+</header>

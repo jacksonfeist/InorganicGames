@@ -1,0 +1,123 @@
+---
+import { getCollection } from 'astro:content';
+import Section from './Section.astro';
+import PlayableCard from './PlayableCard.astro';
+import CTAButton from './CTAButton.astro';
+
+/**
+ * §2 — the centerpiece. This section IS the proof shelf, and the thing that
+ * separates a studio from a slideshow.
+ *
+ * Genre-relevant portfolio proof is the #1 thing a UA buyer screens for, so the
+ * filter is not decoration — it's how they find their genre in one click.
+ *
+ * The collection is currently EMPTY (Phase 0). The empty state below says so
+ * plainly. Do not fill this with videos, GIFs, or stock demos: if it isn't
+ * tappable it isn't proof, and the buyer can tell instantly.
+ */
+const playables = (await getCollection('playables')).sort((a, b) => a.data.order - b.data.order);
+
+const GENRES = ['casual', 'puzzle', 'merge', 'hyper-casual'] as const;
+
+// Only offer a filter for a genre we can actually show. A filter that leads to
+// an empty grid is a worse experience than no filter.
+const activeGenres = GENRES.filter((g) => playables.some((p) => p.data.genre === g));
+const hasSpecBuilds = playables.some((p) => p.data.isSpec);
+---
+
+<Section
+  id="work"
+  eyebrow="The work"
+  title="Play the work. Right now, in this browser."
+  lede="Every demo below is a real, tappable build — not a video of one. Filter to your genre."
+>
+  {
+    playables.length > 0 ? (
+      <>
+        {activeGenres.length > 1 && (
+          <div class="mb-12 flex flex-wrap gap-2" data-filters>
+            <button
+              type="button"
+              data-filter="all"
+              class="border border-signal bg-signal px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-ink transition-colors"
+              aria-pressed="true"
+            >
+              All
+            </button>
+            {activeGenres.map((genre) => (
+              <button
+                type="button"
+                data-filter={genre}
+                class="border border-ink-line px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-muted transition-colors hover:border-signal hover:text-signal"
+                aria-pressed="false"
+              >
+                {genre}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div class="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3" data-grid>
+          {playables.map((entry) => (
+            <PlayableCard entry={entry} />
+          ))}
+        </div>
+
+        {!hasSpecBuilds && (
+          /* Shipped titles are in the grid but no concept builds are. Say so —
+             they are not the same claim, and a buyer screening for genre proof
+             in *their* game deserves to know which one they're looking at. */
+          <p class="mt-14 max-w-2xl border-l-2 border-ink-line pl-4 text-sm leading-relaxed text-muted">
+            Concept builds for named live games land here next — four to six of them.
+            <span class="text-bone"> Want yours built first? </span>
+            We'll build one for your game, free.
+          </p>
+        )}
+      </>
+    ) : (
+      <div class="border border-dashed border-ink-line bg-ink-raised px-8 py-20 text-center">
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-signal">Concept builds in production</p>
+        <p class="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-muted">
+          Four to six live, tappable demos land here — each one a concept build for a real,
+          named game that's running video ads and no playable.
+        </p>
+        <p class="mx-auto mt-4 max-w-lg text-lg leading-relaxed text-bone">
+          Want yours built first? We'll build one for your game, free.
+        </p>
+        <CTAButton label="Book a 15-min call" class="mt-8" />
+      </div>
+    )
+  }
+</Section>
+
+<script>
+  const filters = document.querySelector<HTMLElement>('[data-filters]');
+  const grid = document.querySelector<HTMLElement>('[data-grid]');
+
+  if (filters && grid) {
+    const buttons = filters.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    const cards = grid.querySelectorAll<HTMLElement>('[data-genre]');
+
+    const ON = ['border-signal', 'bg-signal', 'text-ink'];
+    const OFF = ['border-ink-line', 'text-muted', 'hover:border-signal', 'hover:text-signal'];
+
+    filters.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-filter]');
+      if (!button) return;
+
+      const selected = button.dataset.filter;
+
+      buttons.forEach((b) => {
+        const active = b === button;
+        b.setAttribute('aria-pressed', String(active));
+        b.classList.remove(...(active ? OFF : ON));
+        b.classList.add(...(active ? ON : OFF));
+      });
+
+      cards.forEach((card) => {
+        const show = selected === 'all' || card.dataset.genre === selected;
+        card.hidden = !show;
+      });
+    });
+  }
+</script>

@@ -1,9 +1,9 @@
-# Node modules
+# Node
 node_modules/
 
-# Build output
-.next/
-out/
+# Astro
+dist/
+.astro/
 
 # Log files
 *.log
@@ -16,23 +16,16 @@ out/
 .env.production
 
 # IDE files
-.vscode/
 .idea/
 
 # OS-specific files
 .DS_Store
 Thumbs.db
 
-# Package lock
-package-lock.json
+# NOTE: package-lock.json is deliberately NOT ignored. The Pages workflow runs
+# `npm ci`, which requires the lockfile to be committed.
 
-# Ignore files in the StudyHelper directory
-StudyHelper/uploads/
-StudyHelper/*.log
-StudyHelper/.env
-StudyHelper/.env.local
-StudyHelper/.env.development
-StudyHelper/.env.test
-StudyHelper/.env.production
-
-Media/WritheMedia/Gameplay.mov
+# No raw media in git. The legacy site tracked an 83MB MP4 and autoplayed it.
+# Commit compressed web derivatives only. See docs/playables.md §Media weight.
+*.mov
+Media/**/*.mp4
