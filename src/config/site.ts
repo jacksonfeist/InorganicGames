@@ -61,7 +61,7 @@ const ALL_TITLES: ShippedTitle[] = [
     platform: 'TikTok Mini Game',
     url: 'TODO:poly-drop-url — canonical TikTok link',
     pitch:
-      'HTML5, instant-load, in-feed, under a hard weight budget — the same engineering problem as a playable ad.',
+      'HTML5, instant-load, in-feed, under a hard weight budget. The same engineering problem as a playable ad.',
     lead: true,
   },
   {
@@ -77,7 +77,7 @@ const ALL_TITLES: ShippedTitle[] = [
     platform: 'Steam',
     url: 'TODO:purrfect-alchemy-url — Steam store page',
     pitch:
-      'A commercial casual/merge title — the genre we sell into, and proof we understand retention and onboarding.',
+      'A commercial casual/merge title in the genre we sell into. Proof we understand retention and onboarding.',
   },
   {
     name: 'WRITHE',

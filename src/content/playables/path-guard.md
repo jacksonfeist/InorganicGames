@@ -31,7 +31,7 @@ order: 2
 ---
 
 A defense loop compressed to fit a first session: gold, a tower tier, a wave, a
-decision. The interesting part for a UA team is the pacing — the first meaningful
+decision. The interesting part for a UA team is the pacing. The first meaningful
 choice lands in under ten seconds, because a player who hasn't chosen anything yet
 has nothing to lose by leaving.
 
