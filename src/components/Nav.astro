@@ -6,11 +6,17 @@ import CTAButton from './CTAButton.astro';
  *
  * v1 is one scroll — the doc suggests merging Work into Home — so these are
  * anchors, not routes. Dead nav links to stub pages are worse than no pages.
+ *
+ * Nav renders on every page via Base.astro, so the homepage anchors are
+ * absolute (`/#work`) rather than bare (`#work`) — a bare anchor from
+ * /why-playables would just scroll nowhere on that page instead of returning
+ * to the section on Home.
  */
 const links = [
-  { label: 'Work', href: '#work' },
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Studio', href: '#studio' },
+  { label: 'Work', href: '/#work' },
+  { label: 'How it works', href: '/#how-it-works' },
+  { label: 'Studio', href: '/#studio' },
+  { label: 'Why playables?', href: '/why-playables' },
 ];
 ---
 

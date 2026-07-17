@@ -29,3 +29,9 @@ body {
 .rule {
   border-top: 1px solid var(--color-ink-line);
 }
+
+/* FAQ <details> use their own +/- indicator; list-none alone doesn't remove
+   WebKit's native disclosure triangle. */
+summary::-webkit-details-marker {
+  display: none;
+}

@@ -1,0 +1,230 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import CTAButton from '../components/CTAButton.astro';
+
+/**
+ * "Why playables?" — the reasoning + data page for a buyer who wants the case
+ * for the format before they'll look at a vendor. Per docs/positioning.md,
+ * every number here is sourced and attributed; nothing here is our own
+ * performance data (we have none yet — see docs/proof-assets.md). Never add
+ * the banned "4.8 vs 2.9 IPM" or "Me2Zen" figures, and never lead with CTR.
+ *
+ * The FAQ entries double as AEO content — the Q&A shape is what answer
+ * engines (and Google's AI Overviews) lift directly — and back it with a
+ * FAQPage schema built from the same array, so the visible copy and the
+ * structured data can't drift apart.
+ */
+const stats = [
+  {
+    figure: '<5 days',
+    label: 'Effective creative lifespan',
+    detail: 'in mature markets, before performance decays',
+    source: 'Game Growth Advisor, May 2026',
+  },
+  {
+    figure: '84,000+',
+    label: 'Mobile advertisers',
+    detail: 'competing in the same auction every month',
+    source: 'SocialPeta, 2026',
+  },
+  {
+    figure: '~13.3%',
+    label: 'of all impressions',
+    detail: 'are now playable ads',
+    source: 'Sett.ai, Q4 2025',
+  },
+  {
+    figure: '~56%',
+    label: 'of top-performing creatives',
+    detail: 'are playable, not static or video',
+    source: 'Sett.ai, Q4 2025',
+  },
+  {
+    figure: '8×–16×',
+    label: 'impression-to-install lift',
+    detail: 'vs. non-playable formats (8× for top-spending game advertisers, 16× for everyone else)',
+    source: 'Liftoff, 2025 Mobile Ad Creative Index',
+  },
+];
+
+const reasons = [
+  {
+    title: 'The ad is the product, not a pitch for it',
+    body: 'A playable hands someone the same core loop they’ll meet in the tutorial. Whoever installs after that has already decided they like the game — that’s a self-selected user, not a cold click off a video they scrolled past.',
+  },
+  {
+    title: 'Interaction beats interruption',
+    body: 'A video is something to scroll past. A playable asks for one tap, and that tap is a moment of real attention a passive unit can’t buy at any price.',
+  },
+  {
+    title: 'No bait-and-switch, no policy risk',
+    body: 'Apple, Google, Meta and TikTok have all tightened enforcement against ads showing gameplay the app doesn’t contain. Building from the real game isn’t just honest — it’s the only version of this that stays compliant as enforcement gets stricter.',
+  },
+];
+
+const ipmTiers = [
+  { range: '< 4', read: 'Weak' },
+  { range: '6 – 9', read: 'Average' },
+  { range: '> 12', read: 'Strong' },
+];
+
+const faqs = [
+  {
+    q: 'What is a playable ad?',
+    a: 'A short, interactive ad unit that lets someone play a slice of a game — usually one mechanic or a tutorial-style loop — inside the ad itself, before they install. It’s the interactive alternative to a static image or a passive video creative.',
+  },
+  {
+    q: 'How much better do playable ads convert than video or static creative?',
+    a: 'Per Liftoff’s 2025 Mobile Ad Creative Index, playables convert impressions to installs at 8× the rate of non-playable formats for top-spending game advertisers, and 16× for everyone else. That’s an industry figure, not a guarantee for any specific game — genre, hook design and network all move the number.',
+  },
+  {
+    q: 'Why is my creative burning out so fast?',
+    a: 'Effective creative lifespan in mature markets has fallen to under ~5 days (Game Growth Advisor, May 2026), and more than 84,000 mobile advertisers compete in the same auction every month. Passive formats fatigue fast because the audience has seen the same hook a hundred times — that’s the whole case for a format that gives them something to do instead of something to watch.',
+  },
+  {
+    q: 'What’s a good IPM for a playable ad?',
+    a: 'Under 4 installs per mille reads as weak, 6–9 is average, and above 12 is strong (playablemaker.com, Apr 2026). Ask any vendor for their IPM by genre, not just a blended average across everything they’ve built.',
+  },
+  {
+    q: 'Should I judge a playable by its CTR?',
+    a: 'No. CTR is trivially inflated by accidental taps and fake close-button tricks, and the industry treats a CTR-first pitch as a red flag, not a selling point. Judge on IPM, CPI and post-install retention together.',
+  },
+  {
+    q: 'Are playable ads worth it for every game genre?',
+    a: 'The format is genre-agnostic in principle, but the proof isn’t — a puzzle mechanic doesn’t tell you how a merge game’s playable will perform. That’s why genre-relevant demos, not a generic showreel, are what’s worth screening a vendor on before you brief them.',
+  },
+];
+
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.a,
+    },
+  })),
+};
+
+const title = 'Why Playable Ads? The Data and Reasoning Behind the Shift | Inorganic Games';
+const description =
+  'Why UA teams are moving budget into playable ads: sourced stats on creative lifespan, IPM benchmarks, and Liftoff’s impression-to-install data, plus a buyer FAQ.';
+---
+
+<Base title={title} description={description} structuredData={faqLd}>
+  <header class="px-6 pt-20 pb-16 md:pt-28 md:pb-20">
+    <div class="mx-auto max-w-4xl">
+      <p class="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-signal">Why playables?</p>
+      <h1 class="font-display text-5xl leading-[0.95] tracking-wide text-bone md:text-6xl">
+        Your creative dies in under a week.<span class="block text-muted">Here's where the budget goes next.</span>
+      </h1>
+      <p class="mt-8 max-w-2xl text-lg leading-relaxed text-muted">
+        Not opinion — the data UA and creative teams are already buying into. Sourced stats first, then
+        the reasoning, then the questions we get asked on every call.
+      </p>
+    </div>
+  </header>
+
+  <Section id="the-data" eyebrow="The data" title="The numbers behind the shift">
+    <div class="grid gap-px bg-ink-line sm:grid-cols-2 lg:grid-cols-5">
+      {
+        stats.map((stat) => (
+          <div class="flex flex-col bg-ink p-6">
+            <p class="font-display text-4xl tracking-wide text-signal">{stat.figure}</p>
+            <p class="mt-2 text-sm font-semibold text-bone">{stat.label}</p>
+            <p class="mt-1 text-sm leading-relaxed text-muted">{stat.detail}</p>
+            <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-muted">{stat.source}</p>
+          </div>
+        ))
+      }
+    </div>
+    <p class="mt-6 text-sm leading-relaxed text-muted">
+      These are industry figures, not our own results — we're honest about that distinction everywhere on
+      this site. See our live demos for what we can actually show you.
+    </p>
+  </Section>
+
+  <Section
+    class="bg-ink-raised"
+    id="the-reasoning"
+    eyebrow="The reasoning"
+    title="Why playables outperform passive formats"
+  >
+    <div class="grid gap-px bg-ink-line md:grid-cols-3">
+      {
+        reasons.map((reason) => (
+          <div class="bg-ink p-8">
+            <h3 class="font-display text-2xl leading-snug tracking-wide text-bone">{reason.title}</h3>
+            <p class="mt-4 text-sm leading-relaxed text-muted">{reason.body}</p>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section
+    id="ipm"
+    eyebrow="Speak the language"
+    title="What a good IPM actually looks like"
+    lede="IPM — installs per thousand impressions — is what the industry actually screens on. Unlike CTR, it can't be gamed by an accidental tap or a fake close button."
+  >
+    <div class="grid gap-16 lg:grid-cols-[auto_1fr] lg:items-center">
+      <table class="border-collapse">
+        <tbody>
+          {
+            ipmTiers.map((tier) => (
+              <tr class="border-b border-ink-line last:border-0">
+                <td class="py-3 pr-10 font-display text-3xl tracking-wide text-signal">{tier.range}</td>
+                <td class="py-3 text-sm font-semibold text-bone">{tier.read}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      <p class="text-sm leading-relaxed text-muted">
+        playablemaker.com, Apr 2026. Ask any vendor for their IPM broken out by genre — a blended average
+        across everything they've ever built tells you nothing about your game.
+      </p>
+    </div>
+  </Section>
+
+  <Section class="bg-ink-raised" id="faq" eyebrow="FAQ" title="Questions we get on every call">
+    <div class="divide-y divide-ink-line">
+      {
+        faqs.map((faq) => (
+          <details class="group py-6">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-6 font-display text-xl tracking-wide text-bone md:text-2xl">
+              {faq.q}
+              <span class="shrink-0 font-mono text-signal group-open:hidden">+</span>
+              <span class="hidden shrink-0 font-mono text-signal group-open:inline">–</span>
+            </summary>
+            <p class="mt-4 max-w-3xl text-sm leading-relaxed text-muted">{faq.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </Section>
+
+  <section class="rule px-6 py-20 md:py-28">
+    <div class="mx-auto max-w-4xl text-center">
+      <h2 class="font-display text-4xl leading-tight tracking-wide text-bone md:text-5xl">
+        Convinced? The next question is whether <span class="text-signal">we</span> can build it for your genre.
+      </h2>
+      <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+        See genre-relevant, tappable demos before you brief anyone.
+      </p>
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-6">
+        <CTAButton />
+        <a
+          href="/#work"
+          class="text-sm text-muted underline-offset-4 transition-colors hover:text-signal hover:underline"
+        >
+          or see live demos ↓
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

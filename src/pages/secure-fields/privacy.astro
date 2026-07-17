@@ -1,0 +1,130 @@
+---
+import Base from '../../layouts/Base.astro';
+import SecureFieldsCrumbs from '../../components/SecureFieldsCrumbs.astro';
+
+const title = 'Privacy Policy | Secure Fields';
+const description = 'How Inorganic Games LLC handles information in connection with the Secure Fields Jira Cloud app.';
+---
+
+<Base title={title} description={description}>
+  <SecureFieldsCrumbs current="privacy" />
+
+  <article class="mx-auto max-w-3xl px-6 py-16 md:py-20">
+    <p class="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-signal">Legal</p>
+    <h1 class="font-display text-4xl tracking-wide text-bone md:text-5xl">Privacy Policy</h1>
+    <p class="mt-3 text-sm text-muted">Inorganic Games LLC &mdash; Secure Fields<br />Last updated: July 16, 2026</p>
+
+    <div class="mt-10 space-y-10 leading-relaxed text-muted">
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">1. Overview</h2>
+        <p class="mt-3">
+          This Privacy Policy explains how Inorganic Games LLC ("Inorganic Games," "we," "us," or "our")
+          handles information in connection with Secure Fields (the "App"), a Jira Cloud app distributed
+          through the Atlassian Marketplace. This policy covers the App only. It does not apply to our
+          TikTok Mini Games, which are covered by a
+          <a href="/privacy-policy.html" class="text-signal underline underline-offset-2 hover:text-signal-dim">separate privacy policy</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">2. Data the App stores, and where</h2>
+        <p class="mt-3">Secure Fields exists to keep specific field values out of Jira's own data storage. When you use it:</p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            Protected field values, and the permission rules an admin configures for a field, are stored
+            exclusively in Forge-hosted storage operated by Atlassian, using the storage mechanisms
+            Atlassian designates for app data (including its Secret Store for sensitive values).
+          </li>
+          <li>
+            If your site uses the App's access audit log, it records the issue ID, field ID, the acting
+            user's account ID, the action taken, and a timestamp &mdash; never the protected value itself.
+          </li>
+          <li>
+            We do not operate any servers of our own. The App makes no requests outside Atlassian's
+            platform, and nothing it handles is sent to us, to analytics or advertising services, or to any
+            other third party.
+          </li>
+          <li>
+            We do not receive, view, or have any means of accessing your protected values. They are
+            visible only within your own Jira site, to the users your admin has authorized.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">3. Data this website collects</h2>
+        <p class="mt-3">
+          This page, and the rest of the App's documentation and legal pages hosted on
+          inorganicgames.com, set no cookies and run no analytics or tracking scripts. If you email us, we
+          receive whatever information you choose to include in that email (see
+          <a href="/secure-fields/support" class="text-signal underline underline-offset-2 hover:text-signal-dim">Support</a>),
+          and nothing else.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">4. Data residency</h2>
+        <p class="mt-3">
+          All in-scope App data (protected values, permission configuration, and audit records) is stored
+          exclusively within Atlassian's Forge platform, under Atlassian's data residency program. That
+          means it is hosted in the Atlassian-supported location your organization has chosen for your
+          product, and migrates with your site if you change that location. We do not separately choose
+          or control where this data is stored &mdash; Atlassian does.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">5. Data retention and deletion</h2>
+        <p class="mt-3">
+          Protected values persist in Forge storage until a user with edit access overwrites them, or
+          until the App is uninstalled and Atlassian's own data-lifecycle policies for app storage apply.
+          Automatic deletion of a value when its issue is deleted is not yet implemented; this is on our
+          roadmap, alongside a manual erasure procedure. If you need a value deleted before then,
+          <a href="/secure-fields/support" class="text-signal underline underline-offset-2 hover:text-signal-dim">contact us</a>.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">6. Our role under data protection law</h2>
+        <p class="mt-3">
+          Because we never receive, store, or process your protected data outside Atlassian's platform, we
+          do not believe Secure Fields makes us a data processor (under GDPR) or a business associate
+          (under HIPAA) with respect to that data. This is our good-faith position based on how the App is
+          built, not a substitute for your own organization's legal assessment, and it does not change your
+          own obligations under those frameworks. Any regulated data you choose to store using Secure
+          Fields is still subject to your organization's agreement with Atlassian, including any Business
+          Associate Agreement or Data Processing Addendum you may have with Atlassian directly &mdash;
+          Secure Fields does not extend or replace that relationship. If your organization requires a
+          signed agreement with us specifically, see our
+          <a href="/secure-fields/terms" class="text-signal underline underline-offset-2 hover:text-signal-dim">Terms</a>
+          (Provider-Specific Terms, "Data Protection Addendum") and contact us.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">7. Children's privacy</h2>
+        <p class="mt-3">
+          Secure Fields is a business tool for Jira Cloud administrators and their teams. It is not
+          directed at, marketed to, or knowingly used by children.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">8. Changes to this policy</h2>
+        <p class="mt-3">
+          We may update this policy from time to time. Material changes will be reflected by updating the
+          "Last updated" date above.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">9. Contact</h2>
+        <p class="mt-3">
+          Questions about this policy can be directed to:<br />
+          Inorganic Games LLC<br />
+          <a href="mailto:jack@inorganicgames.com" class="text-signal underline underline-offset-2 hover:text-signal-dim">jack@inorganicgames.com</a>
+        </p>
+      </section>
+    </div>
+  </article>
+</Base>
