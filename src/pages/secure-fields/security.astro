@@ -1,0 +1,411 @@
+---
+import Base from '../../layouts/Base.astro';
+import SecureFieldsCrumbs from '../../components/SecureFieldsCrumbs.astro';
+
+const title = 'Security Overview | Secure Fields';
+const description =
+  'Where Secure Fields stores protected values, how access decisions are made, and what the app deliberately does not do.';
+---
+
+<Base title={title} description={description}>
+  <SecureFieldsCrumbs current="security" />
+
+  <article class="mx-auto max-w-3xl px-6 py-16 md:py-20">
+    <p class="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-signal">Security</p>
+    <h1 class="font-display text-4xl tracking-wide text-bone md:text-5xl">Security Overview</h1>
+    <p class="mt-3 text-sm text-muted">Inorganic Games LLC &mdash; Secure Fields<br />Last updated: July 19, 2026</p>
+
+    <div class="mt-10 space-y-12 leading-relaxed text-muted">
+      <section>
+        <p>
+          Secure Fields adds a "Secure Text" custom field type to Jira Cloud for teams that handle
+          regulated information &mdash; patient identifiers, account numbers, case details &mdash;
+          inside their workflows. Jira has no field-level permissions: any user who can see an issue
+          can see every field on it, through the UI, the REST API, JQL search, and CSV export. Secure
+          Fields exists to close that gap for the specific values you choose to protect.
+        </p>
+        <p class="mt-3">
+          This document explains, in verifiable terms, where protected values live, who can read
+          them, and what the app deliberately does not do.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">1. Where protected values live (and where they don't)</h2>
+        <p class="mt-3">
+          <strong class="text-bone">The protected value is never stored in Jira.</strong> When a user
+          saves a secure field, the Jira field itself receives only a constant, non-sensitive marker
+          &mdash; the literal text
+          <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">[secured]</code>
+          &mdash; which is the same for every value in every issue and therefore carries no
+          information. The real value is written to Forge hosted storage (Atlassian's storage
+          platform for apps), using Forge's <strong class="text-bone">Secret Store</strong>, the
+          mechanism Atlassian designates for sensitive data. Secret Store values are excluded from
+          the storage query API, and each app installation's storage is isolated by the platform.
+        </p>
+        <p class="mt-3">Because the value is structurally absent from Jira, it does not appear in:</p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            REST API responses (<code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">GET /rest/api/3/issue/&#123;key&#125;</code>
+            returns only <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">[secured]</code>),
+          </li>
+          <li>
+            JQL search results (the field is not text-indexed at all; Jira rejects text operators
+            against it),
+          </li>
+          <li>CSV and other issue exports (the column shows <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">[secured]</code>),</li>
+          <li>Jira webhooks, issue payloads, or anything else that reads the Jira field value.</li>
+        </ul>
+        <p class="mt-3">This is not a masking layer applied on output &mdash; there is nothing in Jira to mask.</p>
+        <p class="mt-3">
+          <strong class="text-bone">Verified behavior.</strong> We test this on a live Jira Cloud
+          site with an authorized and an unauthorized account: full REST payload sweeps
+          (<code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">fields=*all</code>)
+          contain zero occurrences of the protected value for either account; JQL searches for the
+          value return nothing; CSV exports contain only the marker; the unauthorized account's
+          rendered field shows a masked placeholder. The automated suite re-runs on every change to
+          the value path.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">2. How access decisions are made</h2>
+        <p class="mt-3">
+          All reads and writes of protected values go through the app's backend (a Forge resolver
+          function). The browser never receives a value that the backend has not already authorized
+          for that specific user.
+        </p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            <strong class="text-bone">Server-side identity only.</strong> Authorization uses the user
+            identity that Atlassian's platform supplies to the backend invocation &mdash; which
+            Atlassian documents as secure and unalterable &mdash; never identity or context
+            information sent from the browser, which a user could modify.
+          </li>
+          <li>
+            <strong class="text-bone">Deny by default.</strong> A field with no permission
+            configuration, or with configuration that fails validation, renders the masked
+            placeholder for everyone. Every lookup failure fails closed.
+          </li>
+          <li>
+            <strong class="text-bone">Group- and project-role-based rules.</strong> Jira admins
+            configure, per field, which groups and project roles may view and which may edit.
+          </li>
+          <li>
+            <strong class="text-bone">Edit implies view.</strong> A user matching an edit rule can
+            also view (an editor that cannot see the current value is incoherent). View access never
+            implies edit.
+          </li>
+          <li>
+            <strong class="text-bone">Membership checks run under the app's own identity.</strong>
+            The app queries group and role membership using its app identity (Forge
+            <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">asApp()</code>),
+            keyed by the platform-supplied user ID. Nothing a field viewer triggers ever acts under
+            the viewer's own credentials.
+          </li>
+          <li>
+            <strong class="text-bone">Admin-gated configuration.</strong> Reading or writing a
+            field's permission rules requires Jira administrator permission (global ADMINISTER),
+            checked server-side on every call. The admin surface is the only place the app acts under
+            the calling user's identity
+            (<code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">asUser()</code>):
+            to confirm the caller is an admin, and for the admin page's user search &mdash; which
+            uses the admin's own browse-users permission. The configuration surface never touches
+            protected values.
+          </li>
+          <li>
+            <strong class="text-bone">Typo protection for rules.</strong> The admin page includes a
+            "Preview access" check that evaluates draft rules against a real user
+            <em>before</em> saving, plus an explicit confirmation step listing exactly what will be
+            written.
+          </li>
+        </ul>
+        <p class="mt-3">
+          <strong class="text-bone">No sensitive values in logs.</strong> The app logs keys and IDs
+          only &mdash; never payloads, never stored values. Error messages shown to users never
+          contain protected values.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">3. Encryption</h2>
+        <p class="mt-3">
+          Protected values are <strong class="text-bone">encrypted at rest on Atlassian's platform
+          and encrypted in transit</strong>. Specifically, per Atlassian's published documentation:
+        </p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            The
+            <a href="https://developer.atlassian.com/platform/forge/shared-responsibility-model/" class="text-signal underline underline-offset-2 hover:text-signal-dim">Forge shared responsibility model</a>
+            lists, as Atlassian's responsibility: <em>"Encrypt data at rest for data stored within
+            Forge app storage"</em> and <em>"Use TLS to encrypt all traffic, including HSTS."</em>
+          </li>
+          <li>
+            The
+            <a href="https://developer.atlassian.com/platform/forge/storage-reference/kvs-api-secret/" class="text-signal underline underline-offset-2 hover:text-signal-dim">Forge Secret Store</a>
+            &mdash; where protected values are kept &mdash; stores key-value pairs <em>"in a secure,
+            encrypted manner"</em> and is Atlassian's designated mechanism for sensitive data.
+          </li>
+          <li>
+            Atlassian's
+            <a href="https://www.atlassian.com/trust/security/security-practices" class="text-signal underline underline-offset-2 hover:text-signal-dim">Trust Center</a>
+            states that <em>"any customer data in Atlassian cloud products is encrypted in transit
+            over public networks using TLS 1.2+ with Perfect Forward Secrecy (PFS)"</em>, and that
+            Atlassian uses the underlying cloud provider's key management service (KMS).
+          </li>
+        </ul>
+        <p class="mt-3">
+          <strong class="text-bone">What we deliberately do not claim:</strong> Atlassian's published
+          AES-256 statement is scoped to data drives for a named list of products (Jira, Confluence,
+          Bitbucket, etc.) and does not name Forge hosted storage. We therefore do not state a
+          specific cipher standard for stored values, and will not until Atlassian publishes one for
+          Forge storage. Encryption of Forge-hosted data is implemented and operated by Atlassian,
+          not by this app; the app adds the access-control layer on top.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">4. Data residency</h2>
+        <p class="mt-3">
+          Secure Fields stores <strong class="text-bone">all</strong> of its end-user data
+          exclusively in persistent Forge hosted storage. Under
+          <a href="https://developer.atlassian.com/platform/forge/data-residency/" class="text-signal underline underline-offset-2 hover:text-signal-dim">Atlassian's Forge data residency program</a>,
+          such apps qualify for <strong class="text-bone">PINNED</strong> status: app data is hosted
+          in the customer's chosen Atlassian location, and if an admin migrates their Jira instance
+          to a different location, the app's stored data migrates with it. Atlassian manages the
+          hosting, pinning, and migration. Admins can verify the app's residency status in Atlassian
+          Administration's data residency interface.
+        </p>
+        <p class="mt-3">
+          <strong class="text-bone">In-scope End-User Data declaration</strong> (required by
+          Atlassian's data residency program): the following app data is in scope for data residency
+          and stored in Forge hosted storage &mdash; (a) protected field values, (b) per-field
+          permission configuration, and (c) access audit records (section 9). The app stores no
+          end-user data anywhere else.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">5. No external egress ("Runs on Atlassian")</h2>
+        <p class="mt-3">
+          The app's manifest declares <strong class="text-bone">no external domains, no remote
+          backends, and no Connect components</strong>. All compute and storage are
+          Atlassian-hosted. This is the eligibility bar for Atlassian's
+          <a href="https://developer.atlassian.com/platform/forge/runs-on-atlassian-apps/" class="text-signal underline underline-offset-2 hover:text-signal-dim">Runs on Atlassian</a>
+          program, whose badge is applied automatically on the Marketplace listing &mdash; meaning
+          the "nothing leaves Atlassian's infrastructure" claim is verified by Atlassian's own
+          tooling, not just asserted by us. Protected values are never sent to the vendor, to
+          analytics services, or to any third party.
+        </p>
+        <p class="mt-3">
+          Atlassian's own caveat applies and is worth repeating honestly: egress controls constrain
+          where data can go; they are not a substitute for reviewing what access an app requests.
+          Secure Fields requests three scopes &mdash; app storage, read-only user information (group
+          membership), and read-only work data (project roles) &mdash; and no write scopes against
+          Jira data at all.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">6. Accepted tradeoffs &mdash; read before buying</h2>
+        <p class="mt-3">
+          These are consequences of the design, not defects. If any of these is a dealbreaker, this
+          product is not the right fit.
+        </p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            <strong class="text-bone">Protected values are not searchable or reportable.</strong> No
+            JQL, no filters, no dashboards, no Jira reports can use a protected value &mdash; for
+            anyone, including authorized users. A value that Jira could search would be a value Jira
+            stores; that is precisely what this product exists to prevent.
+          </li>
+          <li>
+            <strong class="text-bone">Protected values are absent from your Jira backups and
+            exports.</strong> Jira site exports, backups, and migrations carry only the
+            <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">[secured]</code>
+            marker, because the values were never in Jira. Today that means your Jira backup does
+            <strong class="text-bone">not</strong> back up protected values (they live in Forge
+            hosted storage, operated by Atlassian). An export-for-backup capability for authorized
+            admins is on the roadmap; until it ships, treat Forge storage as the sole copy and plan
+            accordingly.
+          </li>
+          <li>
+            <strong class="text-bone">No create-time entry (current release).</strong> Secure values
+            are set on an existing issue: save the issue first, then enter the protected value. The
+            field guides users through this. Create-screen support is the top roadmap item.
+          </li>
+          <li>
+            <strong class="text-bone">Cloned issues do not carry the protected value.</strong>
+            Cloning copies the Jira field content &mdash; which is only the marker &mdash; so a clone
+            has no stored value attached. This fails in the safe direction (no silent duplication of
+            sensitive data).
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">7. Data lifecycle (current state, stated plainly)</h2>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            Protected values persist in Forge hosted storage until overwritten. A user with edit
+            access can overwrite a value at any time.
+          </li>
+          <li>
+            <strong class="text-bone">Automatic purge on issue deletion is not yet implemented.</strong>
+            Deleting an issue currently leaves the stored value orphaned in app storage (unreachable
+            through the app's read path, which is keyed to the issue, but not yet deleted). Automatic
+            purge on issue delete &mdash; which is also the right-to-erasure mechanism relevant to
+            GDPR programs &mdash; is a committed roadmap item, alongside a documented manual erasure
+            procedure.
+          </li>
+          <li>
+            Uninstalling the app removes access to stored values; Forge hosted storage follows
+            Atlassian's published data lifecycle for app storage.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">8. Scope of write protection</h2>
+        <p class="mt-3">
+          Jira cannot be used to write arbitrary content into a Secure Text field by any tested
+          path. Direct REST edits (<code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">PUT</code>),
+          issue-create payloads (<code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">POST</code>),
+          the bulk edit API, and automation rules are all
+          <strong class="text-bone">rejected by server-side validation</strong> &mdash; the API
+          returns an error and nothing is stored. <strong class="text-bone">CSV import</strong>
+          accepts the field mapping but the value is
+          <strong class="text-bone">discarded before it reaches the field</strong>: the issue is
+          created and the field stays empty, so nothing leaks (importing admins should note the
+          value is dropped silently rather than rejected with an error). On every tested write path,
+          the Jira field can never hold anything but the inert
+          <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">[secured]</code>
+          marker, however a write is attempted. This was verified empirically on a live Jira Cloud
+          site with authorized and unauthorized accounts, and the checks run as a regression suite.
+        </p>
+        <p class="mt-3">
+          A small number of paths have not yet been explicitly tested &mdash; site-migration tooling
+          (JCMA), JSON import, the legacy REST v2 API, other project templates, and GDPR export; the
+          enforcement is platform-level and is expected to behave identically, and we will extend
+          the verified list as these are checked.
+        </p>
+        <p class="mt-3">
+          The failure mode is disclosure-safe in any case: anything any write path could place in
+          the Jira field would sit in plain Jira storage and would never be treated as, or mingled
+          with, a protected value &mdash; the protected store is written exclusively by the app's
+          backend.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">9. Access audit logging</h2>
+        <p class="mt-3">
+          The app keeps an audit trail answering "who accessed this protected value, and when,"
+          designed for HIPAA-style access-accounting requirements:
+        </p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            every successful <strong class="text-bone">reveal</strong> of a protected value is
+            logged (masked renders expose nothing and are not logged), along with every edit and
+            every permission-rule change;
+          </li>
+          <li>
+            each record holds issue, field, actor, action, and time &mdash;
+            <strong class="text-bone">never the protected value itself</strong>;
+          </li>
+          <li>rapid repeat reveals by the same user on the same field within a short window are de-duplicated;</li>
+          <li>
+            Jira admins can query the log from the app's admin page by time range, issue, field,
+            user, or action.
+          </li>
+        </ul>
+        <p class="mt-3">
+          Audit records live in the same Atlassian-hosted Forge storage as everything else (sections
+          4&ndash;5) and are written only by the app's backend.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">10. Compliance positioning &mdash; precise wording</h2>
+        <p class="mt-3">
+          Secure Fields is a <strong class="text-bone">technical access control</strong> designed to
+          support customers' compliance programs &mdash; HIPAA, SOC 2, GDPR, ISO 27001 and similar
+          &mdash; by keeping designated field values out of Jira's data plane and enforcing
+          least-privilege, deny-by-default access with server-side checks.
+        </p>
+        <p class="mt-3">To be precise about what that means:</p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            <strong class="text-bone">No software product makes an organization "HIPAA
+            compliant."</strong> Compliance is a property of your program &mdash; policies,
+            agreements, training, and controls. Secure Fields can serve as one such control
+            (field-level access restriction and access audit records); it is not a certification
+            and we do not claim one.
+          </li>
+          <li>
+            <strong class="text-bone">Your relationship with Atlassian is unchanged.</strong>
+            Whether and how you may store regulated data (e.g., PHI) in Atlassian cloud products
+            &mdash; including any Business Associate Agreement or equivalent &mdash; is governed by
+            your agreement with Atlassian. See the
+            <a href="https://www.atlassian.com/trust" class="text-signal underline underline-offset-2 hover:text-signal-dim">Atlassian Trust Center</a>
+            for Atlassian's certifications and terms. Secure Fields runs entirely on that same
+            platform and inherits its controls; it neither extends nor replaces them.
+          </li>
+          <li>
+            Platform-level protections referenced in this document (encryption, tenant isolation,
+            data residency, physical security) are implemented and operated by Atlassian under the
+            Forge shared responsibility model. The app's own responsibilities &mdash; authorization
+            logic, deny-by-default behavior, no value leakage into Jira, logs free of sensitive data
+            &mdash; are described in sections 1&ndash;2 and are what our verification suite
+            exercises.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">11. How to verify our claims yourself</h2>
+        <p class="mt-3">
+          We prefer verifiable claims over trust. On your own site, with a field of this type on an
+          issue you can see:
+        </p>
+        <ol class="mt-3 list-decimal space-y-2 pl-5">
+          <li>
+            Store a distinctive test value through the field, then fetch
+            <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">GET /rest/api/3/issue/&#123;key&#125;?fields=*all&amp;expand=names</code>
+            &mdash; the response contains only
+            <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">[secured]</code>,
+            regardless of who asks.
+          </li>
+          <li>
+            Search JQL for the test value &mdash; zero results; a field-scoped text search is
+            rejected because the field is not text-indexed.
+          </li>
+          <li>Export the issue to CSV &mdash; the column contains <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">[secured]</code>.</li>
+          <li>
+            Attempt a REST <code class="rounded bg-ink px-1.5 py-0.5 font-mono text-sm text-bone">PUT</code>
+            writing arbitrary text into the field &mdash; it is rejected.
+          </li>
+          <li>
+            View the issue as a user outside the field's configured groups/roles &mdash; the field
+            renders a masked placeholder.
+          </li>
+          <li>
+            Check the Marketplace listing for the <strong class="text-bone">Runs on Atlassian</strong>
+            badge and your admin data residency screen for the app's
+            <strong class="text-bone">PINNED</strong> status.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 class="font-display text-2xl tracking-wide text-bone">12. Reporting a security concern</h2>
+        <p class="mt-3">
+          Report suspected vulnerabilities privately to
+          <a href="mailto:jack@inorganicgames.com" class="text-signal underline underline-offset-2 hover:text-signal-dim">jack@inorganicgames.com</a>.
+          Please do not open public issues for security reports. We commit to acknowledging reports
+          promptly and to not taking action against good-faith research.
+        </p>
+      </section>
+    </div>
+  </article>
+</Base>
