@@ -30,7 +30,7 @@ export const FEATURES = {
 export const SITE = {
   name: 'Inorganic Games',
   domain: 'inorganicgames.com',
-  email: 'inorganicgames@gmail.com',
+  email: 'jack@inorganicgames.com',
 
   /** Real scheduling link (Calendly-style). Not a "we'll get back to you" form. */
   bookingUrl: 'TODO:booking-url — paste the real scheduling link' as string,
