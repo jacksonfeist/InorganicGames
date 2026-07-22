@@ -6,16 +6,17 @@ mechanic: 'Steer the crowd down the racing line — green gates multiply it, red
 
 # The embedded single-file build. Engine and fonts are inlined, so this one file
 # is the whole ad and it makes zero external requests.
-buildSizeKB: 111
+buildSizeKB: 109
 
 # Deliberately empty. This is our own concept build, built to demonstrate the
 # RUNNER archetype — it has never been submitted to or run through a real ad
 # network, so listing one here would imply a validation we haven't done.
 networksValidated: []
 
-# Own IP, not a client spec. Built in-house to prove the RUNNER archetype
-# (inorganic-fulcrum is the LAUNCHER archetype). Not yet distributed anywhere.
-isSpec: false
+# Own IP, not a client spec. Built in-house to prove the RUNNER archetype — the
+# only one of the five where the thumb steers continuously rather than committing
+# discrete actions. Not yet distributed anywhere.
+kind: demo
 
 # Verified: boots, renders and is tappable with every external request blocked.
 embedReady: true

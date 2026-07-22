@@ -14,7 +14,7 @@ buildSizeKB: 1225
 networksValidated: []
 
 # Shipped. Live as a TikTok Mini — the card renders "Shipped title".
-isSpec: false
+kind: shipped
 
 # Verified: boots, renders and is tappable with every external request blocked.
 embedReady: true

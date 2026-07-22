@@ -70,13 +70,13 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 
 /* End card: buttons only, over a LIGHT scrim — the finished scene (the payoff)
    stays readable behind it. Never an opaque panel. The whole scrim is tappable
-   and triggers the CTA; REPLAY is its own button, centered under it. Buttons
-   sit in the open studio headroom above the tubes — that's where the free
-   space is; the bottom half is already busy with the tray and the pace dial. */
-#end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-  gap:12px;padding:calc(env(safe-area-inset-top,0px) + 140px) 24px 24px;
+   and triggers the CTA; REPLAY is its own button on top. Structure/sizing here
+   matches every other ad (templates/playable-shell.html, ALCHEMY BENCH) — only
+   the colours are reskinned per-game. */
+#end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  gap:12px;padding:24px 24px calc(env(safe-area-inset-bottom,0px) + 34px);
   opacity:0;pointer-events:none;cursor:pointer;
-  background:linear-gradient(180deg,rgba(240,235,226,.78) 0%,rgba(248,245,239,.36) 38%,rgba(248,245,239,0) 70%);
+  background:linear-gradient(180deg,rgba(248,245,239,0) 34%,rgba(248,245,239,.42) 70%,rgba(240,235,226,.8) 100%);
   transition:opacity .5s ease;z-index:20}
 #end.on{opacity:1;pointer-events:auto}
 #cta{margin-top:4px;min-height:58px;width:min(300px,88%);border:0;cursor:pointer;border-radius:29px;
@@ -90,16 +90,6 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
   background:rgba(255,255,255,.62);color:#3A4254;font-family:var(--disp);font-weight:700;
   font-size:12px;letter-spacing:.15em;transition:all .18s ease}
 #replay:hover{background:rgba(255,255,255,.88);color:#12141A}
-
-/* Landscape has width, not height (docs §5) — the headroom above the tubes is
-   much shallower there, so the same stack sits closer to the top edge and
-   trims a few px off CTA height + the gap to still clear the tube rims (both
-   buttons stay ≥48px touch targets). Same 1.15 aspect threshold as layout()'s
-   portrait/landscape switch. Stacking order and centering match portrait. */
-@media (min-aspect-ratio: 23/20){
-  #end{padding-top:calc(env(safe-area-inset-top,0px) + 100px);gap:10px}
-  #cta{min-height:50px}
-}
 
 #toast{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 84px);
   transform:translate(-50%,10px);padding:9px 15px;border-radius:9px;
@@ -280,7 +270,7 @@ var t0 = performance.now();
 // Stamped by tools/bake.mjs — the ad's own byte size, exposed via inorganic_meta
 // and the debug overlay. Measuring it at runtime would cost a request (and throw
 // CORS on file://); this ad makes zero requests.
-var SIZE_BYTES = 119065; /* @size */
+var SIZE_BYTES = 118510; /* @size */
 
 function emit(name, payload) {
   var e = { event: name, payload: payload || {}, t: Math.round(performance.now() - t0) };

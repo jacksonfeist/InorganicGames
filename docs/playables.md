@@ -25,6 +25,48 @@ Every demo in the gallery must:
 - **Be built to real MRAID/network spec** for anything we'd actually ship, so the compliance claim is honest.
 - **Be instrumented** for play-rate and completion, so we learn which hooks land. That data is also the seed of our first real, honest performance story.
 
+### Where the builds come from
+
+`public/playables/<slug>/index.html` is a **build artifact, never hand-edited**. Two
+different upstreams feed it, which is the thing to know before you go looking for one
+script that does both:
+
+| Slugs | Upstream | How |
+|---|---|---|
+| `gridlock`, `alchemy-bench`, `chroma-sort`, `cloud-runner` | `playable-ads` repo, `ads/<slug>/index.html` | Straight copy. The ad units are already single-file and request-free, so no transform is needed or wanted. |
+| `path-guard`, `poly-drop` | `tiktok-mini` repo | `node scripts/import-playable.mjs <slug>` — strips the TikTok SDK, shims it, re-adds the viewport meta, inlines the fonts. See the header comment in that script for why each step exists. |
+
+Note the ad units live under `ads/`, **not** `dist/`. `dist/` is the packaged zip for
+network submission and lags behind. Take the newest file, then re-check the size:
+`buildSizeKB` is KiB (`bytes / 1024`) for the ad units, and the card renders it as
+`KB` under 1000 and `MB` above.
+
+Posters are `screenshots/<slug>/0-hook-portrait.png` from the same repo, halved to
+585×1266 and encoded webp at q80 (`sips -z 1266 585 … && cwebp -q 80 …`) — ~15–22KB.
+Refresh the poster whenever the build changes, or the frame the buyer sees is of a
+version that no longer exists.
+
+### The telemetry envelope
+
+The builds carry **no instrumentation on their own glass** — the player sees a clean
+game. Each one instead posts two message types to its parent frame, and
+`PlayableCard.astro` renders them beside the phone: a badge (`137 KB · 0 requests ·
+60 fps`) and a live event feed (`playable_start`, `first_interaction`,
+`level_complete`, `cta_click`, plus whatever the mechanic earns).
+
+```js
+{ type: 'inorganic_event', name, payload, t }        // t = ms since playable_start
+{ type: 'inorganic_meta',  meta: { bytes, requests, fps } }
+```
+
+The full contract is `docs/gallery-embed.md` in the **playable-ads** repo, which is
+the source of truth for the builds themselves. Two things to know when touching this:
+
+- **Filter by `event.source`.** Every playable on the page posts to the same window,
+  so a listener that doesn't check the sender writes six games' events into one feed.
+- The demo is not just *claiming* zero requests, it is *reporting* them while the
+  buyer plays it. That is the argument — don't quietly replace it with a static badge.
+
 ### Content collection schema
 
 Playables are a content collection — frontmatter, not hand-built HTML.
@@ -36,8 +78,21 @@ genre: merge                        # casual | puzzle | merge | hyper-casual
 mechanic: "raining-coins hook → 3-tap merge loop → install CTA"
 buildSizeKB: 3800
 networksValidated: [applovin, ironsource, unity, mintegral]
-isSpec: true                        # drives the "Concept build" label
+kind: concept                       # concept | demo | shipped — drives the card label
 ```
+
+`kind` has three states because we have three different claims to make, and only
+one of them is "we shipped this":
+
+| `kind` | Card label | What it means |
+|---|---|---|
+| `concept` | "Concept build for [Game]" | Built for a real, named game we do **not** work for. The spec-led outreach asset. |
+| `demo` | "Studio demo build" | Our own IP, built in-house to prove an archetype. Has not shipped, has not run on a network. |
+| `shipped` | "Shipped title" | Something we actually published (the TikTok Minis). |
+
+This replaced a boolean `isSpec`. Two states could not describe an in-house demo,
+so all four of them rendered "Shipped title" — a claim none of them could support,
+and precisely the kind a buyer disproves in one search.
 
 ## Network compliance — the credibility payload
 

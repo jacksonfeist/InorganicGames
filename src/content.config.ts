@@ -4,16 +4,25 @@ import { glob } from 'astro/loaders';
 /**
  * Playables — the proof shelf. Schema per docs/playables.md.
  *
- * Two kinds of entry live here and they prove different things:
+ * Three kinds of entry live here and they prove three different things. The
+ * distinction is the honesty mechanism, so it is a required field rather than a
+ * label someone types per card:
  *
- *   isSpec: true   A concept build for a real, named game we do not work for.
- *                  Renders as "Concept build for [Game]". This is the gallery
- *                  the buyer screens us with, and it is the spec-led outreach
- *                  asset. Currently EMPTY — Phase 0.
+ *   kind: 'concept'  A concept build for a real, named game we do not work for.
+ *                    Renders "Concept build for [Game]". This is the spec-led
+ *                    outreach asset — the thing we send cold. Currently none.
  *
- *   isSpec: false  Something we actually shipped (the TikTok Minis). Renders as
- *                  a shipped title. Never let one of these sit unlabelled next
- *                  to a concept build; they are not the same claim.
+ *   kind: 'demo'     Our own IP, built in-house to prove an archetype. Renders
+ *                    "Studio demo build". These have not shipped and have not
+ *                    run on a network, so they may claim neither.
+ *
+ *   kind: 'shipped'  Something we actually published (the TikTok Minis).
+ *                    Renders "Shipped title".
+ *
+ * This replaced a boolean `isSpec`, which had only two states and therefore
+ * labelled every in-house demo "Shipped title" — a claim none of them could
+ * support. See CLAUDE.md guardrail 4: our legitimacy is the whole positioning,
+ * and a label the buyer can disprove in one search spends it.
  */
 const playables = defineCollection({
   // `[^_]*` so `_TEMPLATE.md` is documentation, not a rendered entry.
@@ -33,8 +42,12 @@ const playables = defineCollection({
       .array(z.enum(['applovin', 'ironsource', 'unity', 'mintegral', 'meta', 'google', 'liftoff', 'moloco', 'tiktok']))
       .default([]),
 
-    /** Drives the "Concept build" label. See docs/playables.md §Honesty guardrails. */
-    isSpec: z.boolean(),
+    /**
+     * Drives the card label. See docs/playables.md §Honesty guardrails.
+     * No default — a missing `kind` must fail the build, never silently pick the
+     * most flattering of the three.
+     */
+    kind: z.enum(['concept', 'demo', 'shipped']),
 
     /**
      * True only once a real, tappable build exists at public/playables/<id>/index.html.

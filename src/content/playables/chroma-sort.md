@@ -14,9 +14,11 @@ buildSizeKB: 116
 # here would imply a validation we haven't done.
 networksValidated: []
 
-# Own IP, not a client spec. Built in-house to prove the SEQUENCE archetype
-# (candy-swap is LAUNCHER, cloud-runner is RUNNER). Not yet distributed anywhere.
-isSpec: false
+# Own IP, not a client spec. Shares GRIDLOCK's SEQUENCE archetype and exists to
+# show it carries a second, tonally opposite theme — the same tap-commit shape
+# reads as ASMR tidy-up here and as escape-under-pressure there. Not yet
+# distributed anywhere.
+kind: demo
 
 # Verified: boots, renders and is tappable with every external request blocked.
 embedReady: true

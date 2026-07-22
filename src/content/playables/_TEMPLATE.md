@@ -15,9 +15,14 @@ buildSizeKB: 3800 # optional. base64 inlining adds ~33% against a ~5MB cap.
 
 networksValidated: [applovin, ironsource, unity, mintegral]
 
-# true  → a concept build for a game we do not work for ("Concept build for X")
-# false → something we actually shipped (the TikTok Minis)
-isSpec: true
+# concept → a build for a real, named game we do NOT work for ("Concept build for X")
+# demo    → our own IP, built in-house to prove an archetype ("Studio demo build")
+# shipped → something we actually published, e.g. a TikTok Mini ("Shipped title")
+#
+# Pick the one that is true, never the one that sounds best. "demo" exists because
+# an in-house build is neither a client spec nor a shipped title, and calling it
+# either is the kind of claim a buyer can disprove in one search.
+kind: concept
 
 # Only true once public/playables/<id>/index.html genuinely runs and is tappable.
 # A video or a GIF of a playable is NOT a playable. Never set this true on a capture.

@@ -16,7 +16,7 @@ networksValidated: []
 # Own IP, not a client spec. Built in-house to prove the MERGE archetype: a
 # commit is a two-point drag (vial onto its twin), not a tap. Not yet
 # distributed anywhere.
-isSpec: false
+kind: demo
 
 # Verified: boots, renders and is tappable with every external request blocked.
 embedReady: true

@@ -7,67 +7,127 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { targetGame, genre, mechanic, buildSizeKB, networksValidated, isSpec, embedReady, poster } =
+const { targetGame, genre, mechanic, buildSizeKB, networksValidated, kind, embedReady, poster } =
   entry.data;
 
 /**
- * The label is the honesty mechanism, so it is derived from `isSpec` and never
+ * The label is the honesty mechanism, so it is derived from `kind` and never
  * hand-written per card.
  *
- *   spec build → "Concept build for X". Not a campaign. No results attached.
- *   shipped    → an actual title we published.
+ *   concept → "Concept build for X". Someone else's named game. Not a campaign,
+ *             and no results are ever attached to it.
+ *   demo    → "Studio demo build". Our own IP, built to prove an archetype. It
+ *             has not shipped and has not run on a network, so it claims neither.
+ *   shipped → an actual title we published.
  *
  * See docs/playables.md §Honesty guardrails.
  */
-const label = isSpec ? `Concept build for ${targetGame}` : `Shipped title`;
+const LABELS = {
+  concept: `Concept build for ${targetGame}`,
+  demo: 'Studio demo build',
+  shipped: 'Shipped title',
+} as const;
+const label = LABELS[kind];
+
 const embedSrc = `/playables/${entry.id}/index.html`;
+
+/**
+ * These builds are 100–140KB, which is the whole point — roughly 2% of the 5MB
+ * network cap. Dividing everything by 1000 and stamping "MB" rendered that as
+ * "0.1MB", which reads as a rounding error rather than the claim it is.
+ */
+const fmtSize = (kb: number) => (kb >= 1000 ? `${(kb / 1000).toFixed(1)} MB` : `${kb} KB`);
 ---
 
 <article class="group" data-genre={genre}>
-  <PhoneFrame>
-    {
-      embedReady ? (
-        <div class="relative h-full w-full" data-playable>
-          {/*
-            Click-to-play: the iframe src is held in data-src and only assigned on
-            click. Booting six playables at once on page load would make a page
-            about ad performance slow, which is an argument against us.
-          */}
-          <iframe
-            data-src={embedSrc}
-            title={`Playable: ${targetGame}`}
-            class="absolute inset-0 h-full w-full border-0 opacity-0 transition-opacity duration-300"
-            loading="lazy"
-            scrolling="no"
-          />
-          <button
-            type="button"
-            data-play
-            class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-cover bg-center transition-colors hover:bg-ink/70"
-            style={poster ? `background-image:linear-gradient(rgba(8,7,12,.55),rgba(8,7,12,.55)),url(${poster})` : undefined}
-          >
-            <span class="flex h-14 w-14 items-center justify-center rounded-full bg-signal text-ink">
-              <svg viewBox="0 0 24 24" fill="currentColor" class="ml-1 h-6 w-6">
-                <path d="M8 5v14l11-7z" />
-              </svg>
+  <div class="flex flex-col gap-5 sm:flex-row">
+    {/* 46%, not half: the feed is the narrower of the two and the one that
+        truncates, so the spare width goes to it rather than to the phone. */}
+    <PhoneFrame class="mx-auto w-full max-w-[280px] shrink-0 sm:mx-0 sm:w-[46%]">
+      {
+        embedReady ? (
+          <div class="relative h-full w-full" data-playable>
+            {/*
+              Click-to-play: the iframe src is held in data-src and only assigned on
+              click. Booting six playables at once on page load would make a page
+              about ad performance slow, which is an argument against us.
+            */}
+            <iframe
+              data-src={embedSrc}
+              title={`Playable: ${targetGame}`}
+              class="absolute inset-0 h-full w-full border-0 opacity-0 transition-opacity duration-300"
+              loading="lazy"
+              scrolling="no"
+            />
+            <button
+              type="button"
+              data-play
+              class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-cover bg-center transition-colors hover:bg-ink/70"
+              style={poster ? `background-image:linear-gradient(rgba(8,7,12,.55),rgba(8,7,12,.55)),url(${poster})` : undefined}
+            >
+              <span class="flex h-14 w-14 items-center justify-center rounded-full bg-signal text-ink">
+                <svg viewBox="0 0 24 24" fill="currentColor" class="ml-1 h-6 w-6">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </span>
+              <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-bone">Tap to play</span>
+            </button>
+          </div>
+        ) : (
+          /* No build in public/playables/<id>/ yet. An honest empty frame beats a
+             dead iframe, and beats a video pretending to be a playable. */
+          <div class="flex h-full w-full flex-col items-center justify-center gap-3 border-2 border-dashed border-ink-line p-6 text-center">
+            <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+              Build not embedded yet
             </span>
-            <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-bone">Tap to play</span>
-          </button>
-        </div>
-      ) : (
-        /* No build in public/playables/<id>/ yet. An honest empty frame beats a
-           dead iframe, and beats a video pretending to be a playable. */
-        <div class="flex h-full w-full flex-col items-center justify-center gap-3 border-2 border-dashed border-ink-line p-6 text-center">
-          <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
-            Build not embedded yet
-          </span>
-          <span class="text-xs leading-relaxed text-ink-line">
-            Drop it in public/playables/{entry.id}/
-          </span>
+            <span class="text-xs leading-relaxed text-ink-line">
+              Drop it in public/playables/{entry.id}/
+            </span>
+          </div>
+        )
+      }
+    </PhoneFrame>
+
+    {
+      embedReady && (
+        /*
+          The telemetry column. The ads used to draw an event ticker and a size tag
+          on their own glass; they no longer do — the player sees a clean game and
+          the envelope streams out of the iframe instead (docs/gallery-embed.md in
+          the playable-ads repo). This panel is the consumer of that envelope, and
+          it is the part a UA buyer actually reads: the demo is not just claiming
+          zero requests, it is reporting them while they play it.
+        */
+        <div class="min-w-0 flex-1" data-telemetry>
+          <p class="font-mono text-[9px] uppercase tracking-[0.2em] text-ink-line">Live from the frame</p>
+
+          {/*
+            Size and requests are build facts and true before anyone taps, so they
+            render from frontmatter immediately; the running ad then overwrites them
+            with its own measurement. fps has nothing to report until it boots.
+          */}
+          <p class="mt-2 font-mono text-[11px] text-muted">
+            <span data-badge-bytes>{buildSizeKB ? fmtSize(buildSizeKB) : '—'}</span>
+            <span class="text-ink-line"> · </span>
+            <span data-badge-requests>0 requests</span>
+            <span class="text-ink-line"> · </span>
+            <span data-badge-fps class="text-ink-line">idle</span>
+          </p>
+
+          {/* Short on mobile, where the panel stacks under the phone and an
+              empty 180px box is just a hole in the page; full height beside it. */}
+          <ol
+            class="mt-3 h-[120px] overflow-y-auto border-l border-ink-line pl-3 font-mono text-[10px] leading-relaxed sm:h-[calc(100%-4.5rem)]"
+            data-feed
+          >
+            <li class="text-ink-line" data-feed-empty>
+              Tap to play — events stream here as you do.
+            </li>
+          </ol>
         </div>
       )
     }
-  </PhoneFrame>
+  </div>
 
   <div class="mt-5">
     <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">{label}</p>
@@ -83,7 +143,7 @@ const embedSrc = `/playables/${entry.id}/index.html`;
         buildSizeKB && (
           <div class="flex gap-1.5">
             <dt class="sr-only">Build size</dt>
-            <dd class="text-muted">{(buildSizeKB / 1000).toFixed(1)}MB</dd>
+            <dd class="text-muted">{fmtSize(buildSizeKB)}</dd>
           </div>
         )
       }
@@ -100,11 +160,46 @@ const embedSrc = `/playables/${entry.id}/index.html`;
 </article>
 
 <script>
-  // Boot a playable only when the buyer actually asks for it.
+  interface AdEvent {
+    type: 'inorganic_event';
+    name: string;
+    payload: Record<string, unknown>;
+    t: number;
+  }
+  interface AdMeta {
+    type: 'inorganic_meta';
+    meta: { bytes: number; requests: number; fps: number };
+  }
+
+  const MAX_ROWS = 40;
+
+  /** Compact `key:value` pairs. Long payloads are trimmed — this is a signal strip, not a log. */
+  function detail(payload: Record<string, unknown>): string[] {
+    if (!payload || typeof payload !== 'object') return [];
+    return Object.entries(payload)
+      .slice(0, 3)
+      .map(([k, v]) => {
+        const val = typeof v === 'number' ? (Number.isInteger(v) ? v : v.toFixed(2)) : String(v);
+        return `${k}:${val}`;
+      });
+  }
+
+  const stamp = (t: number) => (t >= 1000 ? `+${(t / 1000).toFixed(1)}s` : `+${Math.round(t)}ms`);
+
   document.querySelectorAll<HTMLElement>('[data-playable]').forEach((wrap) => {
     const button = wrap.querySelector<HTMLButtonElement>('[data-play]');
     const frame = wrap.querySelector<HTMLIFrameElement>('iframe');
     if (!button || !frame) return;
+
+    // The telemetry column is the phone frame's sibling, one level up from the
+    // frame wrapper. Cards without a build render no panel, hence the null guard.
+    const card = wrap.closest('article');
+    const panel = card?.querySelector<HTMLElement>('[data-telemetry]');
+    const feed = panel?.querySelector<HTMLOListElement>('[data-feed]');
+    const empty = panel?.querySelector<HTMLElement>('[data-feed-empty]');
+    const badgeBytes = panel?.querySelector<HTMLElement>('[data-badge-bytes]');
+    const badgeRequests = panel?.querySelector<HTMLElement>('[data-badge-requests]');
+    const badgeFps = panel?.querySelector<HTMLElement>('[data-badge-fps]');
 
     button.addEventListener('click', () => {
       const src = frame.dataset.src;
@@ -112,6 +207,63 @@ const embedSrc = `/playables/${entry.id}/index.html`;
       frame.src = src;
       frame.classList.replace('opacity-0', 'opacity-100');
       button.remove();
+      empty?.remove();
+    });
+
+    // Every playable on the page posts to this same window, so filtering by
+    // source is what keeps six cards from writing into each other's feed.
+    addEventListener('message', (event: MessageEvent) => {
+      if (event.source !== frame.contentWindow) return;
+
+      const data = event.data as AdEvent | AdMeta | null;
+      if (!data || typeof data !== 'object') return;
+
+      if (data.type === 'inorganic_meta' && data.meta) {
+        const { bytes, requests, fps } = data.meta;
+        if (badgeBytes && typeof bytes === 'number') {
+          badgeBytes.textContent = `${Math.round(bytes / 1024)} KB`;
+        }
+        if (badgeRequests && typeof requests === 'number') {
+          badgeRequests.textContent = `${requests} request${requests === 1 ? '' : 's'}`;
+          // The zero-network guarantee is the claim; make a broken one obvious
+          // rather than letting it slide past in the same muted grey.
+          badgeRequests.classList.toggle('text-signal', requests === 0);
+          badgeRequests.classList.toggle('text-red-400', requests !== 0);
+        }
+        if (badgeFps && typeof fps === 'number') {
+          badgeFps.textContent = `${Math.round(fps)} fps`;
+          badgeFps.classList.remove('text-ink-line');
+        }
+        return;
+      }
+
+      if (data.type !== 'inorganic_event' || !feed) return;
+
+      const row = document.createElement('li');
+      // pr-1 keeps the timestamp off the card's right edge; the feed sits flush
+      // against it otherwise.
+      row.className = 'flex gap-2 py-0.5 pr-1';
+      // Each key:value is its own nowrap chip so the column wraps BETWEEN pairs.
+      // Truncating cut mid-token ("ms_to_first_tap:3…") and plain wrapping split
+      // the number itself ("…:28" / "4") — both read as a broken panel, which is
+      // the opposite of what a panel arguing for our engineering should do.
+      row.innerHTML =
+        '<span class="shrink-0 text-signal"></span>' +
+        '<span class="flex min-w-0 flex-1 flex-wrap gap-x-1.5 text-muted"></span>' +
+        '<span class="shrink-0 text-ink-line"></span>';
+      const [nameEl, detailEl, timeEl] = Array.from(row.children) as HTMLElement[];
+      nameEl.textContent = data.name;
+      for (const pair of detail(data.payload)) {
+        const chip = document.createElement('span');
+        chip.className = 'whitespace-nowrap';
+        chip.textContent = pair;
+        detailEl.append(chip);
+      }
+      timeEl.textContent = stamp(data.t);
+
+      feed.append(row);
+      while (feed.children.length > MAX_ROWS) feed.firstElementChild?.remove();
+      feed.scrollTop = feed.scrollHeight;
     });
   });
 </script>

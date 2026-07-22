@@ -22,7 +22,11 @@ const GENRES = ['casual', 'puzzle', 'merge', 'hyper-casual'] as const;
 // Only offer a filter for a genre we can actually show. A filter that leads to
 // an empty grid is a worse experience than no filter.
 const activeGenres = GENRES.filter((g) => playables.some((p) => p.data.genre === g));
-const hasSpecBuilds = playables.some((p) => p.data.isSpec);
+
+// Concept builds are the spec-led outreach asset and the thing a buyer screening
+// for *their* genre is actually looking for. Studio demos and shipped titles
+// prove we can build; they don't prove we've built for a game like theirs.
+const hasConceptBuilds = playables.some((p) => p.data.kind === 'concept');
 ---
 
 <Section
@@ -57,13 +61,16 @@ const hasSpecBuilds = playables.some((p) => p.data.isSpec);
           </div>
         )}
 
-        <div class="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3" data-grid>
+        {/* Two-up, not three. Each card now carries a telemetry column beside its
+            phone frame, and at three-up neither the frame nor the event feed has
+            the width to be legible. */}
+        <div class="grid gap-x-10 gap-y-16 lg:grid-cols-2" data-grid>
           {playables.map((entry) => (
             <PlayableCard entry={entry} />
           ))}
         </div>
 
-        {!hasSpecBuilds && (
+        {!hasConceptBuilds && (
           /* Shipped titles are in the grid but no concept builds are. Say so —
              they are not the same claim, and a buyer screening for genre proof
              in *their* game deserves to know which one they're looking at. */
