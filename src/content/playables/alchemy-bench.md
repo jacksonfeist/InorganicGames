@@ -2,11 +2,11 @@
 targetGame: 'Alchemy Bench'
 genre: merge
 
-mechanic: 'Drag a vial onto its twin to fuse it up a tier — chain merges toward the legendary elixir before the candle burns out.'
+mechanic: 'Drag a vial onto its twin to fuse it up a tier. Chain merges toward the legendary elixir before the candle burns out.'
 
 # The embedded single-file build. Engine and fonts are inlined, so this one file
 # is the whole ad and it makes zero external requests.
-buildSizeKB: 121
+buildSizeKB: 122
 
 # Deliberately empty. This is our own concept build, built to demonstrate the
 # MERGE archetype — it has never been submitted to or run through a real ad

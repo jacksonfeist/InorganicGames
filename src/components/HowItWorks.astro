@@ -25,7 +25,7 @@ const steps = [
   {
     n: '02',
     title: 'Concept & build',
-    body: 'We design the hook and the tutorial loop, then build it from your real game. Not a re-skin of a template, and not gameplay your app doesn’t contain.',
+    body: 'We design the hook and tutorial loop, then build from your real game: never a template re-skin, never gameplay your app doesn’t contain.',
   },
   {
     n: '03',
@@ -35,7 +35,7 @@ const steps = [
   {
     n: '04',
     title: 'Iterate variants',
-    body: 'Creative dies in under a week. Variants off a proven build ship fast, which is why this works as a recurring cadence rather than a one-off.',
+    body: 'Creative dies in under a week. Variants off a proven build ship fast, which is why this is a recurring cadence, not a one-off.',
   },
 ];
 ---
@@ -43,7 +43,7 @@ const steps = [
 <Section
   id="how-it-works"
   eyebrow="How it works"
-  title="Brief on Monday. Built, packaged, QA'd, shipped."
+  title="Brief, Built, packaged, QA'd, shipped."
 >
   <div class="grid gap-px bg-ink-line md:grid-cols-2 lg:grid-cols-4">
     {
@@ -57,19 +57,15 @@ const steps = [
     }
   </div>
 
-  <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3">
-    {
-      turnaround ? (
-        <p class="text-sm text-muted">
-          Typical turnaround: <span class="font-semibold text-bone">{turnaround}</span> from brief to
-          packaged build.
-        </p>
-      ) : (
-        /* Visible gap. A turnaround we miss costs more than one we never stated. */
-        <p class="border border-dashed border-ink-line px-4 py-2 font-mono text-xs uppercase tracking-widest text-ink-line">
-          Turnaround commitment: empty slot
-        </p>
-      )
-    }
-  </div>
+  {
+    /* Renders nothing until SITE.turnaround is set — a turnaround we miss costs
+       more than one we never stated, and a dev placeholder costs more than
+       either. `npm run check:todos` tracks the gap. */
+    turnaround && (
+      <p class="mt-10 text-sm text-muted">
+        Typical turnaround: <span class="font-semibold text-bone">{turnaround}</span> from brief to
+        packaged build.
+      </p>
+    )
+  }
 </Section>

@@ -145,7 +145,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
      · one control, normalised to t ∈ [0,1] — PACE: hasty(0) ↔ steady(0.5) ↔
        hesitant(1), a LIVE readout (setControl/controlScreen work) — see tOf()
      · a pure sim you can sweep: simRun(t) → outcome   (proves winnability)
-     · a win band of 10–34% of the control range      (winnable, not trivial)
+     · a win band of 10–50% of the control range      (winnable, not trivial —
+       the raised timed-archetype ceiling: docs/archetypes.md)
      · a stray tap costs nothing — commitsOnTap:false; the control is a
        decorative pace dial, never a tube
      · escalating preview on each miss                (nobody gets stuck)
@@ -229,9 +230,16 @@ var CONFIG = {
   TUNING: {
     reactMs: 280,          // bot: think time before each pour
     pourAnimMs: 760,       // live+bot: one pour — travel, glugs, return
-    maxFumbleMs: 2600,     // bot: reservoir fumbled away per pour at t=0 (fully hasty)
+    // Raised from 2600 — at the old value the hasty/rushed failure had gone
+    // nearly silent (the band had drifted to ~73%, one-sided in practice; a
+    // pre-existing drift, not something the budget change below introduced).
+    maxFumbleMs: 6800,     // bot: reservoir fumbled away per pour at t=0 (fully hasty)
     maxExtraDelayMs: 5200, // bot: hesitation per pour at t=1 (fully hesitant)
-    budgetMs: 25000,       // the reservoir, before assist — swept to a ~32% band
+    // The reservoir, before assist. Raised from 25s to 27s (timed archetypes get
+    // a 10-50% ceiling, not 10-34% — docs/archetypes.md); maxFumbleMs raised in
+    // step so both failure sides are real again. Swept to ~48%. Never move this
+    // one alone — re-sweep after any change.
+    budgetMs: 27000,
     fumbleCostMs: 650,     // live: reservoir lost per illegal pour (the decline shake)
     perfectFrac: 0.62,     // solve inside this fraction, zero fumbles = the bonus tier
     hastyDecayS: 0.9,      // live pace gauge: how fast a fumble spike decays
@@ -270,7 +278,7 @@ var t0 = performance.now();
 // Stamped by tools/bake.mjs — the ad's own byte size, exposed via inorganic_meta
 // and the debug overlay. Measuring it at runtime would cost a request (and throw
 // CORS on file://); this ad makes zero requests.
-var SIZE_BYTES = 118510; /* @size */
+var SIZE_BYTES = 120959; /* @size */
 
 function emit(name, payload) {
   var e = { event: name, payload: payload || {}, t: Math.round(performance.now() - t0) };
@@ -499,10 +507,21 @@ function prep(L) {
 /* ══ 6. SIM — GAME LOGIC, but the SHAPE is mandatory. ═════════════════════
 
    The POUR RULES, in one function: a pour moves the contiguous top same-colour
-   run from source to destination; legal only if the destination is empty or its
-   top colour matches, and it has room; as many units move as fit. legalPour()
-   is the ONE hit-test — the live tap handler, the BFS solver, the idle demo,
-   the escalating preview and the harness autopilot all call it. Never a copy.
+   run from source to destination; legal onto ANY tube that has room for it —
+   colour no longer gates it, only capacity (plus: a capped/finished tube can't
+   be poured FROM). As many units move as fit. legalPour() is the ONE hit-test —
+   the live tap handler, the idle demo, the escalating preview and the harness
+   autopilot all call it, and every move the BFS solver proposes is still
+   validated through it. Never a copy.
+
+   solveFrom()'s search additionally PRUNES to the tidy subset (same-colour-or-
+   empty) — a search-space optimisation, not a second legality rule: colours
+   never merge, so dumping a mismatched run onto a tube always costs at least
+   two extra moves (in, then back out) to undo, meaning the optimal solve never
+   needs one. That keeps the planner fast (a few thousand states would blow the
+   frame budget on every replan() otherwise) while never proposing a move
+   legalPour() wouldn't also accept — the player, unlike the bot, is free to
+   make the messier pour, and a bad one just costs time and is undo-able (⟲).
 
    The canonical plan comes from solveFrom() — a deterministic BFS (fixed move
    order, no randomness) over a tiny state space. simRun(t) must be PURE and
@@ -535,14 +554,16 @@ function boardSolved(board) {
   return true;
 }
 
-// THE shared hit-test: how many units s→d would move; 0 = illegal.
+// THE shared hit-test: how many units s→d would move; 0 = illegal. Colour is
+// never a gate — the player may pour any liquid onto any other, mismatched or
+// not. Only two things make a pour illegal: no room left in the destination,
+// or the source is already a capped/finished tube (nothing left to disturb).
 function legalPour(board, s, d) {
   if (s === d) return 0;
   var src = board[s], dst = board[d];
   if (!src.length || dst.length >= CAPN) return 0;
   if (isComplete(src)) return 0;                    // a capped tube is done
   var run = topRunOf(src);
-  if (dst.length && dst[dst.length - 1] !== run.color) return 0;
   return Math.min(run.n, CAPN - dst.length);
 }
 
@@ -557,8 +578,10 @@ function keyOf(board) {
 }
 
 // Deterministic BFS shortest solve — the canonical plan. Shared by the sim bot,
-// the idle demo, the escalating preview and the harness autopilot. The state
-// space of a 5-tube board is a few thousand nodes; this returns in ~1ms.
+// the idle demo, the escalating preview and the harness autopilot. Pruned to
+// tidy moves only (see §6 preamble) — the state space of a 5-tube board is a
+// few thousand nodes; this returns in ~1ms. The unpruned free-pour space is
+// ~150x bigger and would cost ~150ms per replan(), well past a frame.
 function solveFrom(board) {
   if (boardSolved(board)) return [];
   var seen = {}; seen[keyOf(board)] = 1;
@@ -568,6 +591,11 @@ function solveFrom(board) {
     for (var f = 0; f < frontier.length; f++) {
       var node = frontier[f];
       for (var s = 0; s < NTUBES; s++) for (var d = 0; d < NTUBES; d++) {
+        // Tidy-only prune: skip a pour onto a mismatched, non-empty tube. It's
+        // always legalPour()-legal for the PLAYER, but never part of the
+        // shortest solve (see §6), so the planner never bothers proposing it.
+        var dstTop = node.b[d].length ? node.b[d][node.b[d].length - 1] : -1;
+        if (dstTop >= 0 && dstTop !== topRunOf(node.b[s]).color) continue;
         var n = legalPour(node.b, s, d);
         if (!n) continue;
         if (!node.b[d].length && isPure(node.b[s])) continue;   // a null move
@@ -600,18 +628,23 @@ var SOLVE_LEN = SOLUTION.length;
 })();
 
 // The engineered near-miss is a PROPERTY of the state, not a script: the board
-// "looks stuck" when no matching-top pour exists anywhere yet a rescue pour
-// (onto an empty tube) does. The chosen BOARD guarantees the canonical path
-// passes through exactly this once, mid-solve.
+// "looks stuck" when no TIDY pour exists anywhere — every visible top pairs
+// with a mismatch — yet a rescue pour onto the empty tube does. Every pour a
+// mismatched dump would ALSO be legalPour()-legal here (colour never gates
+// it), but it isn't tidy: it doesn't read as progress, so the board still
+// feels stuck even though the player could technically dump onto anything.
+// The chosen BOARD guarantees the canonical path passes through exactly this
+// once, mid-solve.
 function looksStuck(board) {
-  var match = 0, rescue = 0;
+  var tidy = 0, rescue = 0;
   for (var s = 0; s < NTUBES; s++) for (var d = 0; d < NTUBES; d++) {
     var n = legalPour(board, s, d);
     if (!n) continue;
-    if (board[d].length) match++;
+    var dst = board[d];
+    if (dst.length) { if (dst[dst.length - 1] === topRunOf(board[s]).color) tidy++; }
     else if (!isPure(board[s])) rescue++;
   }
-  return !match && rescue > 0;
+  return !tidy && rescue > 0;
 }
 
 // The bot: holds a CONSTANT pace for the whole attempt, exactly like CLOUD
@@ -2057,7 +2090,8 @@ function frame(now) {
 
    It still owes every other guarantee: ONE scalar control t ∈ [0,1] (tOf() —
    PACE, a live readout, not a physical drag), a PURE sweepable sim
-   (simRun/sweep, section 6), a 10–34% band closed on both sides, an
+   (simRun/sweep, section 6), a 10–50% band closed on both sides (the raised
+   ceiling for a timed archetype racing a shared clock — docs/archetypes.md), an
    escalating preview. Never weaken an assertion to fit a mechanic. */
 
 window.__ad = {

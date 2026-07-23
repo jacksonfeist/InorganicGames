@@ -14,15 +14,19 @@ import FinalCTA from '../components/FinalCTA.astro';
  * The nine sections of docs/homepage.md, in scroll order. Order is load-bearing:
  * pain → proof → legitimacy. Don't move the studio strip up — nobody buying
  * playables cares who we are until we've named their problem.
+ *
+ * The gallery carries demo/concept builds only; the shipped TikTok Minis live
+ * in StudioStrip (§8, "Past work") so the ad demos and the published games stay
+ * two distinct claims.
  */
 ---
 
 <Base
-  title="Inorganic Games"
-  description="A real game studio that builds playable ads engineered to convert. Real gameplay, every network, fast iteration."
+  title="Inorganic Games: Playable Ads Built by a Real Game Studio"
+  description="A real game studio that builds playable ads engineered to convert. Real gameplay, every network, fast iteration. Play the live demos in your browser."
 >
   <Hero />
-  <!-- 2 — the centerpiece. Currently empty: Phase 0 spec builds don't exist yet. -->
+  <!-- 2 — the centerpiece: the live, tappable demo shelf. -->
   <PlayableGallery />
   <ProofBar />
   <Alternatives />

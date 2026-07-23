@@ -2,11 +2,11 @@
 targetGame: 'Cloud Runner'
 genre: hyper-casual
 
-mechanic: 'Steer the crowd down the racing line — green gates multiply it, red gates shrink it — then smash the finish wall before the storm catches you.'
+mechanic: 'Steer the crowd down the racing line. Green gates multiply it, red gates shrink it, then smash the finish wall before the storm catches you.'
 
 # The embedded single-file build. Engine and fonts are inlined, so this one file
 # is the whole ad and it makes zero external requests.
-buildSizeKB: 109
+buildSizeKB: 110
 
 # Deliberately empty. This is our own concept build, built to demonstrate the
 # RUNNER archetype — it has never been submitted to or run through a real ad
@@ -23,7 +23,7 @@ embedReady: true
 
 # No externalUrl — this hasn't shipped anywhere yet.
 poster: '/playables/cloud-runner/poster.webp'
-order: 3
+order: 7
 ---
 
 A crowd-runner built to prove out live-steered control, not aim-and-fire: the

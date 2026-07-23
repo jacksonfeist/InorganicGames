@@ -285,7 +285,7 @@ var t0 = performance.now();
 
 // Stamped by tools/bake.mjs — the ad's own byte size, exposed via inorganic_meta
 // and the debug overlay. Never measured at runtime (CORS on file:// + a request).
-var SIZE_BYTES = 111878; /* @size */
+var SIZE_BYTES = 112725; /* @size */
 
 function emit(name, payload) {
   var e = { event: name, payload: payload || {}, t: Math.round(performance.now() - t0) };
@@ -721,6 +721,20 @@ function poly(pts, fill, edge) {
 function PS(L, z) { return L.focal / (L.focal + Math.max(-L.focal * 0.86, z)); }
 function PX(L, x, z) { return L.cx + x * L.roadHalf * PS(L, z); }
 function PY(L, z)    { return L.horizonY + (L.groundY - L.horizonY) * PS(L, z); }
+
+// The road's NEAR edge must reach the actual bottom of the canvas, not just the
+// authored safe box: resize()'s contain-fit (cam.s = min of the two axis ratios)
+// only guarantees the safe box is fully VISIBLE, not that it fills the screen — on
+// a phone taller/narrower than the safe box's own aspect it leaves a strip of
+// canvas below groundY where the void shows through, clipping the closest part of
+// the road right where the demo hand sits. Solve for the world z whose projection
+// lands on the real bottom edge, clamped to PS's own near-plane limit.
+function roadNearZ(L) {
+  var worldBottom = (VH - cam.oy) / cam.s;
+  var ps = (worldBottom - L.horizonY) / (L.groundY - L.horizonY);
+  if (ps <= 0) return -0.86 * L.focal;
+  return Math.max(-0.86 * L.focal, L.focal * (1 / ps - 1));
+}
 
 /* ══ 8. STATE + DIFFICULTY — ENGINE contract, GAME LOGIC fields. ══════════ */
 
@@ -1299,9 +1313,10 @@ function drawRoad(L) {
   // distance that leaves a wedge of empty sky between the road's end and the horizon.
   // Objects (gates, wall) still cull at L.drawZ; the road itself does not.
   var far = L.focal * 48;
+  var near = roadNearZ(L);
 
-  var xl0 = PX(L, -1.06, 0),   xr0 = PX(L, 1.06, 0),   y0 = PY(L, 0);
-  var xl1 = PX(L, -1.06, far), xr1 = PX(L, 1.06, far), y1 = PY(L, far);
+  var xl0 = PX(L, -1.06, near), xr0 = PX(L, 1.06, near), y0 = PY(L, near);
+  var xl1 = PX(L, -1.06, far),  xr1 = PX(L, 1.06, far),  y1 = PY(L, far);
 
   var g = cx.createLinearGradient(0, Y(y1), 0, Y(y0));
   g.addColorStop(0, P.road2);
@@ -1316,12 +1331,12 @@ function drawRoad(L) {
   for (var s = -1; s <= 1; s += 2) {
     var pts = [], seg, z, w;
     for (seg = 0; seg <= N; seg++) {
-      z = -40 + (far + 40) * Math.pow(seg / N, 2.4);
+      z = near + (far - near) * Math.pow(seg / N, 2.4);
       w = 1.06 + 0.10 * Math.sin(z * 0.006 + d * 0.004 + s);
       pts.push({ x: PX(L, s * w, z), y: PY(L, z) });
     }
     for (seg = N; seg >= 0; seg--) {
-      z = -40 + (far + 40) * Math.pow(seg / N, 2.4);
+      z = near + (far - near) * Math.pow(seg / N, 2.4);
       pts.push({ x: PX(L, s * 0.98, z), y: PY(L, z) });
     }
     poly(pts, P.roadEdge, null);
@@ -1337,8 +1352,8 @@ function drawRoad(L) {
     var lx = lane * 0.31;
     for (var n = 0; n < 28; n++) {
       var zA = first + n * period - d, zB = zA + len;
-      if (zB < 0 || zA > far) continue;
-      zA = Math.max(zA, 0);
+      if (zB < near || zA > far) continue;
+      zA = Math.max(zA, near);
       var a1 = PS(L, zA), a2 = PS(L, zB);
       var w1 = Math.max(0.6, 9 * a1), w2 = Math.max(0.4, 9 * a2);
       // fade the farthest dashes into the horizon haze so they don't pop in as a hard row

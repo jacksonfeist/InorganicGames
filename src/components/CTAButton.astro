@@ -1,23 +1,20 @@
 ---
-import { SITE, resolved } from '../config/site';
-
 interface Props {
   label?: string;
   variant?: 'primary' | 'ghost';
   class?: string;
+  /** Override the destination (e.g. "#contact"). Defaults to the contact page. */
+  href?: string;
 }
 
-const { label = 'Book a 15-min call', variant = 'primary', class: klass = '' } = Astro.props;
+const { label = 'Get in touch', variant = 'primary', class: klass = '', href: hrefOverride } = Astro.props;
 
 /**
- * One primary CTA everywhere: book a call. B2B playable deals close on a call.
- *
- * There is no real scheduling link yet, so rather than shipping a button that
- * goes nowhere (or a fake Calendly URL), we fall back to a mailto that actually
- * works. Set SITE.bookingUrl and every CTA on the site switches over at once.
+ * One primary CTA everywhere: get in touch by email. Every button routes to
+ * the contact page rather than firing a mailto straight from a nav bar or
+ * hero, so the click always lands somewhere with context and a real ask.
  */
-const href = resolved(SITE.bookingUrl) ?? `mailto:${SITE.email}?subject=Playable%20ads%3A%20intro%20call`;
-const isFallback = resolved(SITE.bookingUrl) === null;
+const href = hrefOverride ?? '/contact';
 
 const base =
   'inline-flex items-center justify-center px-6 py-3 text-sm font-semibold tracking-wide transition-colors duration-150';
@@ -27,6 +24,6 @@ const styles =
     : 'border border-ink-line text-bone hover:border-signal hover:text-signal';
 ---
 
-<a href={href} class={`${base} ${styles} ${klass}`} data-cta-fallback={isFallback ? '' : null}>
+<a href={href} class={`${base} ${styles} ${klass}`}>
   {label}
 </a>

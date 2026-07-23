@@ -18,13 +18,13 @@ Spec and targeting details: `docs/playables.md`.
 
 Built:
 
-- One-scroll home: pain hero → **live demo gallery** → why-a-studio → plumbing strip → studio credibility → book-a-call + free-spec CTA
+- One-scroll home: pain hero → **live demo gallery** → why-a-studio → plumbing strip → studio credibility → get-in-touch + free-spec CTA
 - The game-studio framing is gone; the shipped titles appear only as the credibility strip
 - MAN_HUNT flagged off (`docs/proof-assets.md`) — `FLAGS.MAN_HUNT: false` in `src/config/site.ts`
 
 Still open, and each one is a `TODO:` sentinel in `src/config/site.ts` that refuses to render rather than inventing a plausible value:
 
-- `bookingUrl` — the real scheduling link (CTAs currently fall back to a `mailto:`)
+- A real scheduling link, if we ever want one on `/contact` — for now every CTA leads there and email is the ask
 - The short form's endpoint (`FORM_ENDPOINT` in `src/components/FinalCTA.astro`)
 - `responseTime`, `turnaround`
 

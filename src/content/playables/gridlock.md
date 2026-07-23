@@ -2,7 +2,7 @@
 targetGame: 'Gridlock'
 genre: puzzle
 
-mechanic: 'Tap a ship whose lane is clear and it burns out of the bay — clear the chain in front of the crimson hero before the blast door comes down.'
+mechanic: 'Tap a ship whose lane is clear and it burns out of the bay. Clear the chain in front of the crimson hero before the blast door comes down.'
 
 # The embedded single-file build. Engine and fonts are inlined, so this one file
 # is the whole ad and it makes zero external requests.

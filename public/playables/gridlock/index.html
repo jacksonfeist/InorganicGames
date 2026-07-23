@@ -143,7 +143,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
        hesitant(1). It's a LIVE readout (setControl/controlScreen still work),
        not something the player drags directly — see tOf() in section 8.
      · a pure sim you can sweep: simRun(t) → outcome    (proves winnability)
-     · a win band of 10–34% of the control range        (winnable, not trivial)
+     · a win band of 10–50% of the control range        (winnable, not trivial —
+       the raised timed-archetype ceiling: docs/archetypes.md)
      · a stray tap costs nothing — commitsOnTap:false, controlScreen() sits on
        a decorative HUD dial, not on a ship
      · escalating preview on each miss                  (nobody gets stuck)
@@ -211,12 +212,11 @@ var CONFIG = {
     maxMistaps: 3,         // bot: wasted taps/round at t=0 (fully hasty)
     mistapCostMs: 1100,    // live+bot: time lost per wasted tap on a blocked ship
     maxExtraDelayMs: 2620, // bot: extra hesitation ms/round at t=1 (fully slow)
-    // The blast door's countdown, before assist. 7.8s for a five-tap solve — a
-    // deliberate 2× extension over the old 3.9s, which was so tight the harness's
-    // first-attempt generosity check failed it (budget 3.8s < 2× the 2.05s ideal
-    // solve). The cost terms above were raised in step so the win band held: swept
-    // to ~24%, still closed on both sides. Never move this one on its own.
-    timeLimitMs: 7800,
+    // The blast door's countdown, before assist. 9.2s for a five-tap solve — raised
+    // from 7.8s so more first-time players land the escape (timed archetypes get a
+    // 10-50% ceiling, not 10-34% — docs/archetypes.md). Swept to ~46%, still closed
+    // on both sides. Never move this one on its own — re-sweep after any change.
+    timeLimitMs: 9200,
     hastyDecayS: 0.9,      // live pace-gauge: how fast the "hasty" spike decays
     hesitantWindowMs: 3000,// live pace-gauge: ms of stillness = fully "hesitant"
     idleAutofireMs: 5200,  // never stall: demo the mechanic if they just watch
@@ -248,7 +248,7 @@ var t0 = performance.now();
 
 // Stamped by tools/bake.mjs — the ad's own byte size, exposed via inorganic_meta
 // and the debug overlay. Never measured at runtime (CORS on file:// + a request).
-var SIZE_BYTES = 140502; /* @size */
+var SIZE_BYTES = 140595; /* @size */
 
 function emit(name, payload) {
   var e = { event: name, payload: payload || {}, t: Math.round(performance.now() - t0) };
@@ -2408,8 +2408,10 @@ function frame(now) {
 
    It still owes every other guarantee: ONE scalar control t ∈ [0,1] (tOf() —
    PACE, a live readout, not a physical drag value), a PURE sweepable sim
-   (simRun/sweep, section 6), a 10–34% band closed on both sides, an escalating
-   preview. Never weaken an assertion to make a mechanic fit — add the archetype. */
+   (simRun/sweep, section 6), a 10–50% band closed on both sides (the raised
+   ceiling for a timed archetype racing a shared clock — docs/archetypes.md), an
+   escalating preview. Never weaken an assertion to make a mechanic fit — add
+   the archetype. */
 
 window.__ad = {
   archetype: 'sequence',

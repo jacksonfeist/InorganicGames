@@ -1,72 +1,56 @@
 ---
+import { getCollection } from 'astro:content';
 import Section from './Section.astro';
+import PlayableCard from './PlayableCard.astro';
 import { SHIPPED_TITLES, resolved } from '../config/site';
 
 /**
- * §8 — "we're a real studio, not a freelancer with a template."
+ * §8 — Past work. "We're a real studio, not a freelancer with a template."
  *
- * The TikTok Minis lead. Not for chronology or sentiment — because a TikTok Mini
- * Game is HTML5, instant-load, in-feed and size-constrained, which is not an
- * analogy for playable-ad work, it IS playable-ad work. See docs/proof-assets.md.
+ * The TikTok Minis lead, as tappable builds. Not for chronology or sentiment —
+ * because a TikTok Mini Game is HTML5, instant-load, in-feed and
+ * size-constrained, which is not an analogy for playable-ad work, it IS
+ * playable-ad work. See docs/proof-assets.md.
+ *
+ * These cards render WITHOUT the build-stats line the demo shelf carries.
+ * Shipped titles are proof of craft; the engineering envelope is the demos'
+ * claim, and repeating it here would blur the two.
  *
  * SHIPPED_TITLES is already filtered by feature flag, so MAN_HUNT (App Store
  * listing 404s) cannot reach this template. Do not iterate any other list here.
  *
  * Ruff Rescue never shipped and is not a title. It is not in the data at all.
  */
-const leads = SHIPPED_TITLES.filter((t) => t.lead);
-const rest = SHIPPED_TITLES.filter((t) => !t.lead);
+const minis = (await getCollection('playables'))
+  .filter((p) => p.data.kind === 'shipped')
+  .sort((a, b) => a.data.order - b.data.order);
+
+// The commercial titles (Steam, itch.io). The TikTok Minis render above as
+// playable builds, so only the non-lead titles remain in this list.
+const commercial = SHIPPED_TITLES.filter((t) => !t.lead);
 ---
 
 <Section
   id="studio"
-  eyebrow="The studio"
+  eyebrow="Past work"
   title="We ship instant-play games inside a social feed."
-  lede="That's the same engineering problem as a playable ad: boot in a browser, in seconds, under a hard weight budget, with no install step. We've already solved it twice."
+  lede="A TikTok Mini Game is the same engineering problem as a playable ad: boot in a browser, in seconds, under a hard weight budget, no install step. We've solved it twice. Play both."
 >
-  <div class="grid gap-px bg-ink-line sm:grid-cols-2">
-    {
-      leads.map((title) => {
-        const href = resolved(title.url);
-        return (
-          <div class="bg-ink-raised p-8">
-            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">
-              {title.platform}
-            </p>
-            <h3 class="mt-3 font-display text-3xl tracking-wide text-bone">{title.name}</h3>
-            <p class="mt-3 text-sm leading-relaxed text-muted">{title.pitch}</p>
-            {href ? (
-              <a
-                href={href}
-                class="mt-5 inline-block text-sm text-signal underline-offset-4 hover:underline"
-                target="_blank"
-                rel="noopener"
-              >
-                Play it →
-              </a>
-            ) : (
-              /* No canonical URL yet. docs/proof-assets.md: "No copy claiming them
-                 can ship without a working link." So the card renders, but it does
-                 not pretend to link anywhere. `npm run check:todos` lists these. */
-              <p class="mt-5 border border-dashed border-ink-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-ink-line inline-block">
-                Link: empty slot
-              </p>
-            )}
-          </div>
-        );
-      })
-    }
+  {/* Same grid as the demo shelf so the phones line up at the same size; two
+      entries simply leave the row short. */}
+  <div class="grid gap-x-8 gap-y-16 sm:grid-cols-2 xl:grid-cols-4">
+    {minis.map((entry) => <PlayableCard entry={entry} stats={false} sublabel="TikTok Mini Game" />)}
   </div>
 
-  <div class="mt-12">
+  <div class="rule mt-16 pt-10">
     <p class="max-w-2xl text-sm leading-relaxed text-muted">
-      We also make commercial games, which is where the craft behind a playable's hook and tutorial
-      loop actually comes from.
+      We also ship commercial games. That's where the craft behind a playable's hook and tutorial
+      loop comes from.
     </p>
 
     <div class="mt-6 flex flex-wrap gap-x-10 gap-y-4">
       {
-        rest.map((title) => {
+        commercial.map((title) => {
           const href = resolved(title.url);
           return (
             <div class="flex items-baseline gap-3">
@@ -80,6 +64,9 @@ const rest = SHIPPED_TITLES.filter((t) => !t.lead);
                   {title.name}
                 </a>
               ) : (
+                /* No verified public URL yet. docs/proof-assets.md: no copy
+                   claiming a title ships with a dead link, so the name renders
+                   unlinked. `npm run check:todos` lists these. */
                 <span class="font-display text-2xl tracking-wide text-bone">{title.name}</span>
               )}
               <span class="font-mono text-xs text-muted">{title.platform}</span>

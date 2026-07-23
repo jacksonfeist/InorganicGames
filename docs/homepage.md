@@ -10,11 +10,11 @@ Five destinations. A playable-ads site is a closer, not a content hub — keep i
 | **Work / Playables** | The live tappable demo gallery + case studies. The most important page after Home — for v1, consider just merging it *into* Home. |
 | **How it works / Process** | Brief-to-build steps, turnaround, network-compliance depth, the no-fake-gameplay stance. This is the "knows the plumbing" trust page, and it's the page agencies vet us with. |
 | **Studio** | Credibility. The shipped titles, the real-studio-not-a-freelancer story, the team. |
-| **Contact / Book a call** | A real scheduling link + a short form. |
+| **Contact** | A dedicated page with our email as the main action, plus a short form on Home. |
 
-**Global nav:** `Work · How it works · Studio · [Book a call]`
+**Global nav:** `Work · How it works · Studio · [Contact]`
 
-The CTA is a button, visually distinct, top-right on every page, and repeated at the bottom of every section. One primary CTA everywhere — B2B playable deals close on a call, not in a cart.
+The CTA is a button, visually distinct, top-right on every page, and repeated at the bottom of every section. One primary CTA everywhere, pointing at the contact page: B2B playable deals close on a real conversation, not in a cart. Calls get scheduled by reply once someone's actually emailed in.
 
 ## Homepage, section by section
 
@@ -26,7 +26,7 @@ In scroll order. Each section states its job and its failure mode.
 
 - **Headline:** pain-led. Working example — *"Your best creative is already dead. (Ad fatigue kills it in under a week.)"*
 - **Subhead:** *"Inorganic builds playable ads engineered to convert — real gameplay, every network, fast iteration. Play our work below."*
-- **Primary CTA:** `Book a 15-min call`
+- **Primary CTA:** `Get in touch`
 - **Secondary:** a text link, *"or see live demos ↓"*
 - **Visual:** one auto-looping, muted playable capture. Lightweight. Poster frame required.
 
@@ -98,13 +98,13 @@ Then the commercial titles (Purrfect Alchemy, WRITHE) as proof we understand fun
 
 ### 9. Final CTA
 
-Repeat `Book a 15-min call`, and add the low-friction offer:
+Repeat `Get in touch`, and add the low-friction offer:
 
 > "Want to see what we'd build for *your* game? We'll build one free."
 
 ## Conversion mechanics
 
-- **One primary CTA: book a call.** Use a real scheduling link (Calendly-style), not a "we'll get back to you" form.
+- **One primary CTA: get in touch by email.** Every CTA routes to `/contact`, which leads with our email address. No direct-booking link yet; calls get scheduled by reply once someone's emailed in.
 - **The killer secondary CTA — the free spec build.** *"Show us your game, we'll build one playable free."* This is the entire sales motion productized into a button: low-risk for the buyer, plays to our build-speed edge, and turns the site into the destination for spec-led outreach. Gate it lightly — game name + contact, nothing more.
 - **Keep forms short.** Name, email, game/company, and one open field ("what are you running now?"). Every extra field costs conversions.
 - **State a response-time promise** ("we reply within X hours"). It directly answers the freelancer-flakiness objection, which is the buyer's live fear.

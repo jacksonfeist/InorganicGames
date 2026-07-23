@@ -140,7 +140,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
        hesitant(1). A LIVE readout (setControl/controlScreen still work) on a
        decorative brass dial — see tOf() in section 8.
      · a pure sim you can sweep: simRun(t) → outcome    (proves winnability)
-     · a win band of 10–34% of the control range        (winnable, not trivial)
+     · a win band of 10–50% of the control range        (winnable, not trivial —
+       the raised timed-archetype ceiling: docs/archetypes.md)
      · a stray tap costs nothing — commitsOnTap:false; controlScreen() sits on
        the dial, never on a vial
      · escalating preview on each miss                  (nobody gets stuck)
@@ -214,10 +215,16 @@ var CONFIG = {
     spawnAnimMs: 160,      // bot: fixed overhead of a brew (the lob out of the pot)
     mergeAnimMs: 260,      // bot: fixed overhead of a fuse (the glide + pop)
     maxWaste: 3,           // bot: wasted beats per action at t=0 (fully hasty)
-    wasteCostMs: 520,      // live+bot: candle burned per fumble (mismatch drop / full-pot tap)
-    maxExtraDelayMs: 1600, // bot: extra hesitation ms per action at t=1 (fully slow)
+    wasteCostMs: 676,      // live+bot: candle burned per fumble (mismatch drop / full-pot tap)
+    maxExtraDelayMs: 2080, // bot: extra hesitation ms per action at t=1 (fully slow)
     cooldownMs: 420,       // the cauldron needs a beat between brews
-    candleMs: 18600,       // the candle, before assist — swept to a ~22% band
+    autoBrewMs: 3000,      // the pot brews on its own on this cadence, live-only — win or
+                           // lose never hinges on tapping it, so nobody gets stuck not
+                           // knowing how to get more vials. Skipped outright when full.
+    // The candle, before assist. Raised from 18.6s to 20.5s, with wasteCostMs/
+    // maxExtraDelayMs raised in step so the (raised, timed-archetype) ceiling
+    // held: swept to ~45%, still closed on both sides. Never move this one alone.
+    candleMs: 20500,
     perfectFrac: 0.78,     // finish inside this fraction of the candle, no fumbles = PERFECT
     hastyDecayS: 0.9,      // live pace dial: how fast the "hasty" spike decays
     hesitantWindowMs: 2600,// live pace dial: ms of stillness = fully "hesitant"
@@ -251,7 +258,7 @@ var t0 = performance.now();
 
 // Stamped by tools/bake.mjs — the ad's own byte size, exposed via inorganic_meta
 // and the debug overlay. Never measured at runtime (CORS on file:// + a request).
-var SIZE_BYTES = 123887; /* @size */
+var SIZE_BYTES = 124995; /* @size */
 
 function emit(name, payload) {
   var e = { event: name, payload: payload || {}, t: Math.round(performance.now() - t0) };
@@ -788,7 +795,7 @@ function resetAttempt(hard) {
     cells: startCells(),
     vials: null,
     spawnsUsed: 0, spawnReadyClk: 0, mergesDone: 0, maxTierMade: 0,
-    clock: 0,
+    clock: 0, autoBrewClk: 0,
     timeTotal: total, timeLeft: total,
     lastEventAt: performance.now(), hastyBurst: 0, paceOverride: null,
     wastedThisAttempt: 0, startedAt: performance.now(),
@@ -1107,6 +1114,16 @@ function step(dt) {
       }
     }
     if (W.drive) stepDrive(dt);
+
+    // The pot brews on its own every autoBrewMs — active play or not, touched or
+    // not — so a player who never discovers the tap still keeps getting vials.
+    // Silently skipped when the bench is full; never fumbles, never costs candle.
+    W.autoBrewClk += dt;
+    if (W.autoBrewClk >= T.autoBrewMs / 1000) {
+      W.autoBrewClk = 0;
+      var freeAuto = freeSlots(W.cells);
+      if (freeAuto.length && W.clock >= W.spawnReadyClk) spawnVial(freeAuto[0], false);
+    }
 
     if (W.timeLeft <= 0) failRun('burned');
   }
@@ -2125,8 +2142,9 @@ function frame(now) {
 
    It still owes every other guarantee: ONE scalar control t ∈ [0,1] (tOf() —
    PACE, a live readout), a PURE sweepable sim (simRun/sweep, section 6), a
-   10–34% band closed on both sides, an escalating preview. Never weaken an
-   assertion to make a mechanic fit — add the archetype. */
+   10–50% band closed on both sides (the raised ceiling for a timed archetype
+   racing a shared clock — docs/archetypes.md), an escalating preview. Never
+   weaken an assertion to make a mechanic fit — add the archetype. */
 
 window.__ad = {
   archetype: 'merge',

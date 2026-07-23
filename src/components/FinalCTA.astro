@@ -8,9 +8,10 @@ import { SITE, resolved } from '../config/site';
  *
  * The form is deliberately four fields. Every extra field costs conversions.
  *
- * No form endpoint is configured yet, so the form posts nowhere — it degrades to
- * a mailto that genuinely works rather than a form that silently eats a lead.
- * Set FORM_ENDPOINT to switch it over.
+ * No form endpoint is configured yet, so the form degrades to email: the script
+ * below composes a mailto with the fields in the body. (A bare mailto-action
+ * form with GET puts the fields in the URL query, which mail clients silently
+ * drop — the lead would arrive empty.) Set FORM_ENDPOINT to switch it over.
  */
 const FORM_ENDPOINT = 'TODO:form-endpoint — Formspree/Basin/etc, or wire to your CRM' as string;
 const endpoint = resolved(FORM_ENDPOINT);
@@ -24,24 +25,21 @@ const responseTime = resolved(SITE.responseTime);
         Want to see what we'd build for <span class="text-signal">your</span> game?
       </h2>
       <p class="mt-6 text-lg leading-relaxed text-muted">
-        We'll build one playable, free. You send the game, we send back something you can tap. No
-        deck, no retainer, no call required to find out if we're any good.
+        We'll build one playable, free. Send the game; we send back something you can tap. No deck,
+        no retainer, no obligation.
       </p>
 
       <div class="mt-10">
-        <CTAButton label="Book a 15-min call" />
+        <CTAButton label="Get in touch" />
       </div>
 
       {
-        responseTime ? (
+        /* Answers the freelancer-flakiness objection, which is the buyer's live
+           fear. Renders nothing until SITE.responseTime holds a promise we'll
+           actually keep — `npm run check:todos` tracks the gap. */
+        responseTime && (
           <p class="mt-6 text-sm text-muted">
             We reply <span class="text-bone">{responseTime}</span>.
-          </p>
-        ) : (
-          /* Answers the freelancer-flakiness objection, which is the buyer's live
-             fear. Only worth stating if we'll actually hold to it. */
-          <p class="mt-6 inline-block border border-dashed border-ink-line px-4 py-2 font-mono text-xs uppercase tracking-widest text-ink-line">
-            Response-time promise: empty slot
           </p>
         )
       }
@@ -49,8 +47,9 @@ const responseTime = resolved(SITE.responseTime);
 
     <form
       action={endpoint ?? `mailto:${SITE.email}`}
-      method={endpoint ? 'POST' : 'GET'}
+      method="POST"
       enctype={endpoint ? undefined : 'text/plain'}
+      data-mailto={endpoint ? null : SITE.email}
       class="space-y-5"
     >
       <div>
@@ -110,14 +109,29 @@ const responseTime = resolved(SITE.responseTime);
       >
         Send my game, build me one free
       </button>
-
-      {
-        !endpoint && (
-          <p class="font-mono text-[10px] uppercase tracking-widest text-ink-line">
-            Form endpoint: empty slot. Falls back to email.
-          </p>
-        )
-      }
     </form>
   </div>
 </section>
+
+<script>
+  // With no endpoint configured, compose the lead into a mailto body so the
+  // message actually arrives. The POST/text-plain form action stays as the
+  // no-JS fallback.
+  const form = document.querySelector<HTMLFormElement>('form[data-mailto]');
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const data = new FormData(form);
+    const lines = [
+      `Name: ${data.get('name') ?? ''}`,
+      `Email: ${data.get('email') ?? ''}`,
+      `Game / company: ${data.get('game') ?? ''}`,
+      `Currently running: ${data.get('running') ?? ''}`,
+    ];
+
+    const subject = encodeURIComponent(`Free playable build: ${data.get('game') ?? ''}`);
+    const body = encodeURIComponent(lines.join('\n'));
+    window.location.href = `mailto:${form.dataset.mailto}?subject=${subject}&body=${body}`;
+  });
+</script>

@@ -2,11 +2,11 @@
 targetGame: 'Chroma Sort'
 genre: puzzle
 
-mechanic: 'Tap a tube, tap another — pour matching colours together and chase every tube to pure before the reservoir runs dry.'
+mechanic: 'Tap a tube, tap another: pour matching colours together and chase every tube to pure before the reservoir runs dry.'
 
 # The embedded single-file build. Engine and fonts are inlined, so this one file
 # is the whole ad and it makes zero external requests.
-buildSizeKB: 116
+buildSizeKB: 118
 
 # Deliberately empty. This is our own concept build, built to demonstrate the
 # SEQUENCE archetype (discrete tap-commits against a shared clock) — it has

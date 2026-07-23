@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { SITE, SHIPPED_TITLES, resolved } from '../config/site';
+import { SITE, SHIPPED_TITLES } from '../config/site';
 
 /**
  * llms.txt (see llmstxt.org) — a plain-text summary aimed at LLM crawlers and
@@ -15,12 +15,12 @@ import { SITE, SHIPPED_TITLES, resolved } from '../config/site';
  */
 export const GET: APIRoute = ({ site }) => {
   const origin = site ?? new URL('https://inorganicgames.com');
-  const bookingLine = resolved(SITE.bookingUrl) ?? `mailto:${SITE.email}`;
+  const contactLine = `${SITE.email} (${new URL('/contact', origin)})`;
   const titles = SHIPPED_TITLES.map((t) => `- ${t.name} (${t.platform})`).join('\n');
 
   const body = `# Inorganic Games
 
-> A game studio that builds playable ads for mobile user-acquisition teams. This is a B2B creative vendor site, not a consumer game-studio portfolio — the shipped titles below are credibility proof, not the product.
+> A game studio that builds playable ads for mobile user-acquisition teams. This is a B2B creative vendor site, not a consumer game-studio portfolio: the shipped titles below are credibility proof, not the product.
 
 ## What we sell
 
@@ -48,7 +48,7 @@ ${titles}
 
 ## Contact
 
-${bookingLine}
+${contactLine}
 `;
 
   return new Response(body, {
